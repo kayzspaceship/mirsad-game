@@ -305,7 +305,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                       {guess.position}
                     </td>
                     <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
-                      {getJerseyIndicator(guess.height, player.height)} {guess.height}cm
+                      {getJerseyIndicator(guess.height, player.height)} {getJerseyIndicator(guess.height, player.height)} {guess.height}cm
                     </td>
                     <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
                       {guess.age}
