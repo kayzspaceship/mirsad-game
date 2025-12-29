@@ -232,12 +232,20 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           <div className="bg-slate-100 border-2 border-slate-900 rounded-r-lg p-3 space-y-2 max-h-80 overflow-y-auto">
             <p className="text-xs font-bold text-slate-600 text-center sticky top-0 bg-slate-100">HISTORY</p>
             {recentScores.length > 0 ? (
-              recentScores.map((item, idx) => (
-                <div key={idx} className="text-center text-xs">
-                  <p className="text-slate-500">{new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</p>
-                  <p className="text-sm font-black text-slate-900">{item.score}/8</p>
-                </div>
-              ))
+              recentScores.map((item, idx) => {
+                const itemDate = new Date(item.date + 'T00:00:00');
+                const today = new Date(date + 'T00:00:00');
+                const isTodayScore = itemDate.getTime() === today.getTime();
+                return (
+                  <div key={idx} className="text-center text-xs">
+                    <p className="text-slate-500 flex items-center justify-center gap-1">
+                      {itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                      {isTodayScore && <span className="text-lg">🎉</span>}
+                    </p>
+                    <p className="text-sm font-black text-slate-900">{item.score}/8</p>
+                  </div>
+                );
+              })
             ) : (
               <p className="text-xs text-slate-400 text-center py-4">No games yet</p>
             )}
