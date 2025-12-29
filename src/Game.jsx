@@ -189,7 +189,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
     result += `\n${guesses.length}/${MAX_GUESSES}\n`;
     result += gameWon ? '✅ I guessed it!' : gameLost ? '❌ Game Over!' : '';
-    result += '\n\nmirsad.vercel.app';
+    result += '\n\nmirsad.co';
     return result;
   };
 
