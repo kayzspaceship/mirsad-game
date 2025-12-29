@@ -83,16 +83,19 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white">
       <div className="bg-slate-900 text-white p-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-black">🏀 MIRSAD</h1>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            min={minDate}
-            max={maxDate}
-            className="px-3 py-2 rounded bg-white text-slate-900 font-bold text-sm"
-          />
+        <div className="max-w-6xl mx-auto flex justify-between items-center gap-4">
+          <div className="flex-1"></div>
+          <h1 className="text-3xl font-black text-center flex-1">🏀 MIRSAD</h1>
+          <div className="flex-1 flex justify-end">
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              min={minDate}
+              max={maxDate}
+              className="px-3 py-2 rounded bg-white text-slate-900 font-bold text-sm"
+            />
+          </div>
         </div>
       </div>
 
