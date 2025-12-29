@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const MAX_GUESSES = 8;
 
@@ -56,6 +56,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [gameLost, setGameLost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [colorBlindMode, setColorBlindMode] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflowX = 'hidden';
+    return () => {
+      document.body.style.overflowX = 'auto';
+    };
+  }, []);
 
   const makeGuess = (selectedPlayer) => {
     if (gameWon || gameLost) return;
@@ -188,7 +195,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     : { filter: 'brightness(0)', opacity: 1 };
 
   return (
-    <div className="min-h-screen bg-white py-8">
+    <div className="min-h-screen bg-white py-8 overflow-x-hidden">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-8 flex justify-between items-center">
           <h2 className="text-4xl font-black text-slate-900 flex-1">Today's Player</h2>
@@ -249,44 +256,46 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
         )}
 
         {guesses.length > 0 && (
-          <div className="mb-6 overflow-x-auto border-2 border-slate-900 rounded-lg">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-slate-900 text-white">
-                  <th className="p-3 text-left font-black border-r border-slate-700">Name</th>
-                  <th className="p-3 text-left font-black border-r border-slate-700">Team</th>
-                  <th className="p-3 text-left font-black border-r border-slate-700">Position</th>
-                  <th className="p-3 text-left font-black border-r border-slate-700">Height</th>
-                  <th className="p-3 text-left font-black border-r border-slate-700">Age</th>
-                  <th className="p-3 text-left font-black border-r border-slate-700">Jersey</th>
-                  <th className="p-3 text-left font-black">Country</th>
-                </tr>
-              </thead>
-              <tbody>
-                {guesses.map((guess, idx) => (
-                  <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200'}>
-                    <td className="p-3 font-bold text-slate-900 border-r border-slate-200">
-                      {guess.name}
-                      {guess.isCorrect && <span className="text-green-600 ml-2">✓</span>}
-                    </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
-                      {getArrow(guess.height, player.height)} {guess.height}cm
-                    </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
-                      {getArrow(guess.age, player.age)} {guess.age}
-                    </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>
-                      #{guess.jerseyNumber} {getArrow(guess.jerseyNumber, player.jerseyNumber)}
-                    </td>
-                    <td className={`p-3 font-bold text-white text-lg ${getCellColor(guess.nationality === player.nationality)}`}>
-                      {getCountryFlag(guess.nationality)}
-                    </td>
+          <div className="mb-6 rounded-lg border-2 border-slate-900 overflow-hidden">
+            <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}>
+              <table className="w-full text-sm min-w-max">
+                <thead>
+                  <tr className="bg-slate-900 text-white">
+                    <th className="p-3 text-left font-black border-r border-slate-700">Name</th>
+                    <th className="p-3 text-left font-black border-r border-slate-700">Team</th>
+                    <th className="p-3 text-left font-black border-r border-slate-700">Pos</th>
+                    <th className="p-3 text-left font-black border-r border-slate-700">Height</th>
+                    <th className="p-3 text-left font-black border-r border-slate-700">Age</th>
+                    <th className="p-3 text-left font-black border-r border-slate-700">Jersey</th>
+                    <th className="p-3 text-left font-black">Country</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {guesses.map((guess, idx) => (
+                    <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200'}>
+                      <td className="p-3 font-bold text-slate-900 border-r border-slate-200 whitespace-nowrap">
+                        {guess.name}
+                        {guess.isCorrect && <span className="text-green-600 ml-2">✓</span>}
+                      </td>
+                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
+                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
+                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
+                        {getArrow(guess.height, player.height)} {guess.height}
+                      </td>
+                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
+                        {getArrow(guess.age, player.age)} {guess.age}
+                      </td>
+                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>
+                        #{guess.jerseyNumber} {getArrow(guess.jerseyNumber, player.jerseyNumber)}
+                      </td>
+                      <td className={`p-3 font-bold text-white text-lg whitespace-nowrap ${getCellColor(guess.nationality === player.nationality)}`}>
+                        {getCountryFlag(guess.nationality)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
