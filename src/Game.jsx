@@ -70,6 +70,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [searchResults, setSearchResults] = useState([]);
   const [colorBlindMode, setColorBlindMode] = useState(false);
   const [recentScores, setRecentScores] = useState([]);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     document.body.style.overflowX = 'hidden';
@@ -84,6 +85,25 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       const dates = Object.keys(scores).sort().reverse().slice(0, 7);
       const scoreList = dates.map(d => ({ date: d, score: scores[d] }));
       setRecentScores(scoreList);
+      
+      // Calculate streak
+      const allDates = Object.keys(scores).sort().reverse();
+      let currentStreak = 0;
+      const today = new Date();
+      
+      for (let i = 0; i < allDates.length; i++) {
+        const gameDate = new Date(allDates[i] + 'T00:00:00');
+        const expectedDate = new Date(today);
+        expectedDate.setDate(expectedDate.getDate() - i);
+        
+        // Check if dates match and score is a win
+        if (gameDate.toLocaleDateString('en-CA') === expectedDate.toLocaleDateString('en-CA') && scores[allDates[i]] <= MAX_GUESSES) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+      setStreak(currentStreak);
     };
     loadScores();
   }, []);
@@ -97,6 +117,26 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       const scoreList = Object.keys(scores).sort().reverse().slice(0, 7)
         .map(d => ({ date: d, score: scores[d] }));
       setRecentScores(scoreList);
+      
+      // Recalculate streak
+      if (gameWon) {
+        const allDates = Object.keys(scores).sort().reverse();
+        let currentStreak = 0;
+        const today = new Date();
+        
+        for (let i = 0; i < allDates.length; i++) {
+          const gameDate = new Date(allDates[i] + 'T00:00:00');
+          const expectedDate = new Date(today);
+          expectedDate.setDate(expectedDate.getDate() - i);
+          
+          if (gameDate.toLocaleDateString('en-CA') === expectedDate.toLocaleDateString('en-CA') && scores[allDates[i]] <= MAX_GUESSES) {
+            currentStreak++;
+          } else {
+            break;
+          }
+        }
+        setStreak(currentStreak);
+      }
     }
   }, [gameWon, gameLost, guesses, date]);
 
@@ -188,7 +228,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     }
 
     result += `\n${guesses.length}/${MAX_GUESSES}\n`;
-    result += gameWon ? '✅ I guessed it!' : gameLost ? '❌ Game Over!' : '';
+    result += gameWon ? `✅ I guessed it! 🔥 Streak: ${streak}` : gameLost ? '❌ Game Over!' : '';
     result += '\n\nmirsad.co';
     return result;
   };
@@ -234,29 +274,38 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   return (
     <div className="min-h-screen bg-white py-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Score Tracker Left - HISTORY ONLY */}
+        {/* Score Tracker Left - HISTORY + STREAK */}
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 hidden lg:block">
-          <div className="bg-slate-100 border-2 border-slate-900 rounded-r-lg p-3 space-y-2 max-h-80 overflow-y-auto">
-            <p className="text-xs font-bold text-slate-600 text-center sticky top-0 bg-slate-100">HISTORY</p>
-            {recentScores.length > 0 ? (
-              recentScores.map((item, idx) => {
-                const itemDate = new Date(item.date + 'T00:00:00');
-                const today = new Date(date + 'T00:00:00');
-                const isTodayScore = itemDate.getTime() === today.getTime();
-                const isWin = item.score <= MAX_GUESSES && item.score > 0;
-                return (
-                  <div key={idx} className="text-center text-xs">
-                    <p className="text-slate-500 flex items-center justify-center gap-1">
-                      {itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
-                      {isTodayScore && isWin && <span className="text-lg">🎉</span>}
-                    </p>
-                    <p className="text-sm font-black text-slate-900">{item.score}/8</p>
-                  </div>
-                );
-              })
-            ) : (
-              <p className="text-xs text-slate-400 text-center py-4">No games yet</p>
-            )}
+          <div className="bg-slate-100 border-2 border-slate-900 rounded-r-lg p-3 space-y-3 max-h-80 overflow-y-auto">
+            {/* Streak */}
+            <div className="text-center border-b-2 border-slate-900 pb-2">
+              <p className="text-xs font-bold text-slate-600">STREAK</p>
+              <p className="text-3xl font-black">🔥 {streak}</p>
+            </div>
+            
+            {/* History */}
+            <div>
+              <p className="text-xs font-bold text-slate-600 text-center sticky top-0 bg-slate-100">HISTORY</p>
+              {recentScores.length > 0 ? (
+                recentScores.map((item, idx) => {
+                  const itemDate = new Date(item.date + 'T00:00:00');
+                  const today = new Date(date + 'T00:00:00');
+                  const isTodayScore = itemDate.getTime() === today.getTime();
+                  const isWin = item.score <= MAX_GUESSES && item.score > 0;
+                  return (
+                    <div key={idx} className="text-center text-xs">
+                      <p className="text-slate-500 flex items-center justify-center gap-1">
+                        {itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                        {isTodayScore && isWin && <span className="text-lg">🎉</span>}
+                      </p>
+                      <p className="text-sm font-black text-slate-900">{item.score}/8</p>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-slate-400 text-center py-2">No games yet</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -265,6 +314,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           <div className="w-full max-w-2xl">
             <div className="text-center mb-8">
               <h2 className="text-4xl font-black text-slate-900 mb-4">Today's Player</h2>
+              <p className="text-2xl font-black mb-2">🔥 {streak}</p>
               <button
                 onClick={() => setColorBlindMode(!colorBlindMode)}
                 className={`px-3 py-2 rounded text-sm font-bold transition ${
@@ -376,7 +426,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
             {(gameWon || gameLost) && (
               <div className={`p-4 rounded-lg mb-6 text-center border-2 text-sm ${gameWon ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
                 <p className="font-bold mb-1">{gameWon ? `🎉 Correct! ${player.name}` : `😢 Game Over! ${player.name}`}</p>
-                {gameWon && <p className="text-xs">You guessed in {guesses.length} tries!</p>}
+                {gameWon && <p className="text-xs">You guessed in {guesses.length} tries! 🔥 Streak: {streak}</p>}
               </div>
             )}
 
