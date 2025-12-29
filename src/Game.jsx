@@ -2,15 +2,65 @@ import React, { useState } from 'react';
 
 const MAX_GUESSES = 8;
 
+const countryNames = {
+  'Turkey': 'Turkey',
+  'Turkiye': 'Turkey',
+  'United States of America': 'United States',
+  'USA': 'United States',
+  'France': 'France',
+  'Germany': 'Germany',
+  'Spain': 'Spain',
+  'Italy': 'Italy',
+  'Greece': 'Greece',
+  'Poland': 'Poland',
+  'Serbia': 'Serbia',
+  'Croatia': 'Croatia',
+  'Russia': 'Russia',
+  'Israel': 'Israel',
+  'Lithuania': 'Lithuania',
+  'Latvia': 'Latvia',
+  'Estonia': 'Estonia',
+  'Czech Republic': 'Czech Republic',
+  'Hungary': 'Hungary',
+  'Romania': 'Romania',
+  'Bulgaria': 'Bulgaria',
+  'Slovenia': 'Slovenia',
+  'Montenegro': 'Montenegro',
+  'Bosnia and Herzegovina': 'Bosnia and Herzegovina',
+  'Macedonia': 'North Macedonia',
+  'North Macedonia': 'North Macedonia',
+  'Albania': 'Albania',
+  'Slovakia': 'Slovakia',
+  'Belgium': 'Belgium',
+  'Netherlands': 'Netherlands',
+  'Portugal': 'Portugal',
+  'UK': 'United Kingdom',
+  'United Kingdom': 'United Kingdom',
+  'England': 'United Kingdom',
+  'Canada': 'Canada',
+  'Australia': 'Australia',
+  'New Zealand': 'New Zealand',
+  'Japan': 'Japan',
+  'China': 'China',
+  'South Korea': 'South Korea',
+  'Brazil': 'Brazil',
+  'Argentina': 'Argentina',
+  'Mexico': 'Mexico',
+  'Senegal': 'Senegal',
+  'Nigeria': 'Nigeria',
+  'Egypt': 'Egypt'
+};
+
 export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
-  const [gameWon || gameLost, setGameWon] = useState(false);
+  const [gameWon, setGameWon] = useState(false);
   const [gameLost, setGameLost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [colorBlindMode, setColorBlindMode] = useState(false);
 
   const makeGuess = (selectedPlayer) => {
-    if (gameWon || gameLost || gameLost) return;
+    if (gameWon || gameLost) return;
 
     const newGuess = {
       name: selectedPlayer.name,
@@ -96,7 +146,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     }
 
     result += `\n${guesses.length}/${MAX_GUESSES}\n`;
-    result += gameWon || gameLost ? '✅ Başardım!' : gameLost ? '❌ Kaybettim!' : '';
+    result += gameWon ? '✅ I guessed it!' : gameLost ? '❌ Game Over!' : '';
     result += '\n\nmirsad.vercel.app';
     return result;
   };
@@ -111,15 +161,44 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     };
     if (platform === 'copy') {
       navigator.clipboard.writeText(getShareEmoji());
-      alert('Kopyalandı! 📋');
+      alert('Copied! 📋');
     } else {
       window.open(urls[platform], '_blank');
     }
   };
 
+  const getJerseyIndicator = (guessJersey, correctJersey) => {
+    if (guessJersey === correctJersey) return '=';
+    return guessJersey < correctJersey ? '↑' : '↓';
+  };
+
+  const getCountryName = (country) => {
+    return countryNames[country] || country;
+  };
+
+  const getRowColor = (guess) => {
+    if (colorBlindMode) {
+      if (guess.position === player.position) return 'bg-blue-200';
+      if (guess.age === player.age) return 'bg-blue-200';
+      if (guess.height === player.height) return 'bg-blue-200';
+      if (guess.team === player.team) return 'bg-blue-200';
+      if (guess.nationality === player.nationality) return 'bg-blue-200';
+      if (guess.jerseyNumber === player.jerseyNumber) return 'bg-blue-200';
+      return 'bg-orange-200';
+    }
+    return guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200';
+  };
+
+  const getCellColor = (isCorrect, isClose = false) => {
+    if (colorBlindMode) {
+      return isCorrect ? 'bg-blue-500' : isClose ? 'bg-amber-500' : 'bg-orange-500';
+    }
+    return isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500';
+  };
+
   const canPlay = !isToday || !hasPlayed;
 
-  const photoStyle = gameWon || gameLost 
+  const photoStyle = (gameWon || gameLost) 
     ? {
         filter: 'brightness(1) saturate(1)',
         opacity: 1
@@ -132,17 +211,27 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   return (
     <div className="min-h-screen bg-white py-8">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-4xl font-black text-slate-900 mb-2">Günün Oyuncusu</h2>
-          <p className="text-slate-600">Kaç tahminle bulabilirsin?</p>
+        <div className="text-center mb-8 flex justify-between items-center">
+          <h2 className="text-4xl font-black text-slate-900 flex-1">Today's Player</h2>
+          <button
+            onClick={() => setColorBlindMode(!colorBlindMode)}
+            className={`px-3 py-2 rounded text-sm font-bold transition ${
+              colorBlindMode 
+                ? 'bg-amber-500 text-white' 
+                : 'bg-slate-200 text-slate-900'
+            }`}
+          >
+            🎨 {colorBlindMode ? 'Normal' : 'Color Blind'}
+          </button>
         </div>
+        <p className="text-slate-600 text-center mb-8">How many guesses to find the player?</p>
 
         <div className="mb-8 flex justify-center">
           <div className="relative w-48 h-64 rounded-xl overflow-hidden shadow-2xl border-4 border-slate-900 bg-white">
             {player.imageUrl && (
               <img
                 src={player.imageUrl}
-                alt="Oyuncu"
+                alt="Player"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -157,18 +246,18 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
         {isToday && hasPlayed && (
           <div className="mb-6 p-4 bg-yellow-100 border-2 border-yellow-600 rounded text-center text-yellow-900">
-            <p className="font-bold">😊 Bugünkü oyunu zaten oynadın!</p>
-            <p className="text-sm">Yarın tekrar deneyin.</p>
+            <p className="font-bold">😊 You already played today!</p>
+            <p className="text-sm">Try again tomorrow.</p>
           </div>
         )}
 
-        {canPlay && !gameWon || gameLost && !gameLost && (
+        {canPlay && !gameWon && !gameLost && (
           <div className="mb-6">
             <input
               type="text"
               value={currentGuess}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Oyuncu adı yaz..."
+              placeholder="Type player name..."
               className="w-full px-4 py-3 rounded-lg bg-white text-slate-900 border-2 border-slate-900 outline-none text-sm"
             />
             {searchResults.length > 0 && (
@@ -204,34 +293,28 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
               </thead>
               <tbody>
                 {guesses.map((guess, idx) => (
-                  <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200'}>
+                  <tr key={idx} className={getRowColor(guess)}>
                     <td className="p-3 font-bold text-slate-900 border-r border-slate-200">
                       {guess.name}
                       {guess.isCorrect && <span className="text-green-600 ml-2">✓</span>}
                     </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${guess.team === player.team ? 'bg-green-500' : 'bg-red-500'}`}>
+                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.team === player.team)}`}>
                       {guess.team}
                     </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${guess.position === player.position ? 'bg-green-500' : 'bg-red-500'}`}>
+                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.position === player.position)}`}>
                       {guess.position}
                     </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${
-                      guess.height === player.height ? 'bg-green-500' : Math.abs(guess.height - player.height) <= 3 ? 'bg-yellow-400' : 'bg-red-500'
-                    }`}>
+                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
                       {guess.height}cm
                     </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${
-                      guess.age === player.age ? 'bg-green-500' : Math.abs(guess.age - player.age) <= 3 ? 'bg-yellow-400' : 'bg-red-500'
-                    }`}>
+                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
                       {guess.age}
                     </td>
-                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${
-                      guess.jerseyNumber === player.jerseyNumber ? 'bg-green-500' : Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1 ? 'bg-yellow-400' : 'bg-red-500'
-                    }`}>
-                      #{guess.jerseyNumber}
+                    <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>
+                      #{guess.jerseyNumber} {getJerseyIndicator(guess.jerseyNumber, player.jerseyNumber)}
                     </td>
-                    <td className={`p-3 font-bold text-white ${guess.nationality === player.nationality ? 'bg-green-500' : 'bg-red-500'}`}>
-                      {guess.nationality.substring(0, 2).toUpperCase()}
+                    <td className={`p-3 font-bold text-white ${getCellColor(guess.nationality === player.nationality)}`}>
+                      {getCountryName(guess.nationality)}
                     </td>
                   </tr>
                 ))}
@@ -240,16 +323,16 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           </div>
         )}
 
-        {(gameWon || gameLost || gameLost) && (
-          <div className={`p-4 rounded-lg mb-6 text-center border-2 text-sm ${gameWon || gameLost ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
-            <p className="font-bold mb-1">{gameWon || gameLost ? `🎉 Doğru! ${player.name}` : `😢 Game Over! ${player.name}`}</p>
-            {gameWon || gameLost && <p className="text-xs">{guesses.length} tahmin ile başardın!</p>}
+        {(gameWon || gameLost) && (
+          <div className={`p-4 rounded-lg mb-6 text-center border-2 text-sm ${gameWon ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
+            <p className="font-bold mb-1">{gameWon ? `🎉 Correct! ${player.name}` : `😢 Game Over! ${player.name}`}</p>
+            {gameWon && <p className="text-xs">You guessed in {guesses.length} tries!</p>}
           </div>
         )}
 
-        {(gameWon || gameLost || gameLost) && (
+        {(gameWon || gameLost) && (
           <div className="mb-6 p-4 bg-slate-100 rounded-lg border-2 border-slate-900">
-            <p className="text-center font-bold text-slate-900 mb-3 text-sm">Sonucunu Paylaş:</p>
+            <p className="text-center font-bold text-slate-900 mb-3 text-sm">Share your result:</p>
             <div className="flex gap-2 justify-center flex-wrap">
               <button onClick={() => share('twitter')} className="px-4 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded font-bold text-sm">𝕏</button>
               <button onClick={() => share('facebook')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-sm">f</button>
@@ -261,19 +344,19 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
         <div className="grid grid-cols-4 gap-2">
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
-            <p className="text-slate-600 text-xs font-bold">TAHMIN</p>
+            <p className="text-slate-600 text-xs font-bold">GUESSES</p>
             <p className="text-xl font-black text-slate-900">{guesses.length}/{MAX_GUESSES}</p>
           </div>
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
-            <p className="text-slate-600 text-xs font-bold">KALAN</p>
+            <p className="text-slate-600 text-xs font-bold">LEFT</p>
             <p className="text-xl font-black text-slate-900">{MAX_GUESSES - guesses.length}</p>
           </div>
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
-            <p className="text-slate-600 text-xs font-bold">DURUM</p>
-            <p className="text-lg font-black text-slate-900">{gameWon || gameLost ? '✓' : gameLost ? '✗' : '▶'}</p>
+            <p className="text-slate-600 text-xs font-bold">STATUS</p>
+            <p className="text-lg font-black text-slate-900">{gameWon ? '✓' : gameLost ? '✗' : '▶'}</p>
           </div>
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
-            <p className="text-slate-600 text-xs font-bold">SİLÜET</p>
+            <p className="text-slate-600 text-xs font-bold">REVEAL</p>
             <p className="text-lg font-black text-slate-900">{gameWon || gameLost ? '100%' : '0%'}</p>
           </div>
         </div>
