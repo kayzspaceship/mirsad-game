@@ -29,7 +29,7 @@ export default function App() {
         }));
         setPlayers(playersList.sort((a, b) => a.id - b.id));
       } catch (error) {
-        console.error('Oyuncuları yükleme hatası:', error);
+        console.error('Error loading players:', error);
       }
     };
     fetchPlayers();
@@ -59,7 +59,7 @@ export default function App() {
           [selectedDate]: !!played
         }));
       } catch (error) {
-        console.error('Hata:', error);
+        console.error('Error:', error);
       }
       setLoading(false);
     };
@@ -92,7 +92,6 @@ export default function App() {
             min={minDate}
             max={maxDate}
             className="px-3 py-2 rounded bg-white text-slate-900 font-bold text-sm"
-            disabled={selectedDate === today && playedDates[today]}
           />
         </div>
       </div>
