@@ -3,50 +3,63 @@ import React, { useState, useEffect } from 'react';
 const MAX_GUESSES = 8;
 
 const countryEmojis = {
-  'Turkey': '🇹🇷',
-  'Turkiye': '🇹🇷',
-  'United States': '🇺🇸',
-  'United States of America': '🇺🇸',
-  'USA': '🇺🇸',
-  'France': '🇫🇷',
-  'Germany': '🇩🇪',
-  'Spain': '🇪🇸',
-  'Italy': '🇮🇹',
-  'Greece': '🇬🇷',
-  'Poland': '🇵🇱',
-  'Serbia': '🇷🇸',
-  'Croatia': '🇭🇷',
-  'Russia': '🇷🇺',
-  'Israel': '🇮🇱',
-  'Lithuania': '🇱🇹',
-  'Latvia': '🇱🇻',
-  'Estonia': '🇪🇪',
-  'Czech Republic': '🇨🇿',
-  'Hungary': '🇭🇺',
-  'Romania': '🇷🇴',
-  'Bulgaria': '🇧🇬',
-  'Slovenia': '🇸🇮',
-  'Montenegro': '🇲🇪',
-  'Bosnia and Herzegovina': '🇧🇦',
-  'North Macedonia': '🇲🇰',
-  'Albania': '🇦🇱',
-  'Slovakia': '🇸🇰',
-  'Belgium': '🇧🇪',
-  'Netherlands': '🇳🇱',
-  'Portugal': '🇵🇹',
-  'United Kingdom': '🇬🇧',
-  'Canada': '🇨🇦',
-  'Australia': '🇦🇺',
-  'New Zealand': '🇳🇿',
-  'Japan': '🇯🇵',
-  'China': '🇨🇳',
-  'South Korea': '🇰🇷',
-  'Brazil': '🇧🇷',
-  'Argentina': '🇦🇷',
-  'Mexico': '🇲🇽',
-  'Senegal': '🇸🇳',
-  'Nigeria': '🇳🇬',
-  'Egypt': '🇪🇬'
+  'Turkey': '🇹🇷', 'Turkiye': '🇹🇷', 'United States': '🇺🇸', 'United States of America': '🇺🇸', 'USA': '🇺🇸',
+  'France': '🇫🇷', 'Germany': '🇩🇪', 'Spain': '🇪🇸', 'Italy': '🇮🇹', 'Greece': '🇬🇷', 'Poland': '🇵🇱', 'Serbia': '🇷🇸',
+  'Croatia': '🇭🇷', 'Russia': '🇷🇺', 'Israel': '🇮🇱', 'Lithuania': '🇱🇹', 'Latvia': '🇱🇻', 'Estonia': '🇪🇪',
+  'Czech Republic': '🇨🇿', 'Hungary': '🇭🇺', 'Romania': '🇷🇴', 'Bulgaria': '🇧🇬', 'Slovenia': '🇸🇮',
+  'Montenegro': '🇲🇪', 'Bosnia and Herzegovina': '🇧🇦', 'North Macedonia': '🇲🇰', 'Albania': '🇦🇱',
+  'Slovakia': '🇸🇰', 'Belgium': '🇧🇪', 'Netherlands': '🇳🇱', 'Portugal': '🇵🇹', 'United Kingdom': '🇬🇧',
+  'Canada': '🇨🇦', 'Australia': '🇦🇺', 'New Zealand': '🇳🇿', 'Japan': '🇯🇵', 'China': '🇨🇳',
+  'South Korea': '🇰🇷', 'Brazil': '🇧🇷', 'Argentina': '🇦🇷', 'Mexico': '🇲🇽', 'Senegal': '🇸🇳',
+  'Nigeria': '🇳🇬', 'Egypt': '🇪🇬', 'Andorra': '🇦🇩', 'United Arab Emirates': '🇦🇪', 'Afghanistan': '🇦🇫',
+  'Antigua and Barbuda': '🇦🇬', 'Anguilla': '🇦🇮', 'Armenia': '🇦🇲', 'Angola': '🇦🇴', 'Antarctica': '🇦🇶',
+  'American Samoa': '🇦🇸', 'Austria': '🇦🇹', 'Aruba': '🇦🇼', 'Åland Islands': '🇦🇽', 'Azerbaijan': '🇦🇿',
+  'Barbados': '🇧🇧', 'Bangladesh': '🇧🇩', 'Bahrain': '🇧🇭', 'Burundi': '🇧🇮', 'Benin': '🇧🇯',
+  'Saint Barthélemy': '🇧🇱', 'Bermuda': '🇧🇲', 'Brunei Darussalam': '🇧🇳', 'Bolivia': '🇧🇴',
+  'Bonaire, Sint Eustatius and Saba': '🇧🇶', 'Bahamas': '🇧🇸', 'Bhutan': '🇧🇹', 'Bouvet Island': '🇧🇻',
+  'Botswana': '🇧🇼', 'Belarus': '🇧🇾', 'Belize': '🇧🇿', 'Cocos (Keeling) Islands': '🇨🇨',
+  'Congo': '🇨🇩', 'Central African Republic': '🇨🇫', 'Switzerland': '🇨🇭', 'Côte D\'Ivoire': '🇨🇮',
+  'Cook Islands': '🇨🇰', 'Chile': '🇨🇱', 'Cameroon': '🇨🇲', 'Colombia': '🇨🇴', 'Costa Rica': '🇨🇷',
+  'Cuba': '🇨🇺', 'Cape Verde': '🇨🇻', 'Curaçao': '🇨🇼', 'Christmas Island': '🇨🇽', 'Cyprus': '🇨🇾',
+  'Djibouti': '🇩🇯', 'Denmark': '🇩🇰', 'Dominica': '🇩🇲', 'Dominican Republic': '🇩🇴', 'Algeria': '🇩🇿',
+  'Ecuador': '🇪🇨', 'Western Sahara': '🇪🇭', 'Eritrea': '🇪🇷', 'Ethiopia': '🇪🇹', 'Finland': '🇫🇮',
+  'Fiji': '🇫🇯', 'Falkland Islands (Malvinas)': '🇫🇰', 'Micronesia': '🇫🇲', 'Faroe Islands': '🇫🇴',
+  'Gabon': '🇬🇦', 'Grenada': '🇬🇩', 'Georgia': '🇬🇪', 'French Guiana': '🇬🇫', 'Guernsey': '🇬🇬',
+  'Ghana': '🇬🇭', 'Gibraltar': '🇬🇮', 'Greenland': '🇬🇱', 'Gambia': '🇬🇲', 'Guinea': '🇬🇳',
+  'Guadeloupe': '🇬🇵', 'Equatorial Guinea': '🇬🇶', 'South Georgia': '🇬🇸', 'Guatemala': '🇬🇹',
+  'Guam': '🇬🇺', 'Guinea-Bissau': '🇬🇼', 'Guyana': '🇬🇾', 'Hong Kong': '🇭🇰', 'Heard Island': '🇭🇲',
+  'Honduras': '🇭🇳', 'Haiti': '🇭🇹', 'Indonesia': '🇮🇩', 'Ireland': '🇮🇪', 'Isle of Man': '🇮🇲',
+  'India': '🇮🇳', 'British Indian Ocean Territory': '🇮🇴', 'Iraq': '🇮🇶', 'Iran': '🇮🇷', 'Iceland': '🇮🇸',
+  'Jersey': '🇯🇪', 'Jamaica': '🇯🇲', 'Jordan': '🇯🇴', 'Kenya': '🇰🇪', 'Kyrgyzstan': '🇰🇬',
+  'Cambodia': '🇰🇭', 'Kiribati': '🇰🇮', 'Comoros': '🇰🇲', 'Saint Kitts and Nevis': '🇰🇳',
+  'North Korea': '🇰🇵', 'Kuwait': '🇰🇼', 'Cayman Islands': '🇰🇾', 'Kazakhstan': '🇰🇿',
+  'Lao People\'s Democratic Republic': '🇱🇦', 'Lebanon': '🇱🇧', 'Saint Lucia': '🇱🇨',
+  'Liechtenstein': '🇱🇮', 'Sri Lanka': '🇱🇰', 'Liberia': '🇱🇷', 'Lesotho': '🇱🇸',
+  'Luxembourg': '🇱🇺', 'Libya': '🇱🇾', 'Morocco': '🇲🇦', 'Monaco': '🇲🇨', 'Moldova': '🇲🇩',
+  'Saint Martin': '🇲🇫', 'Madagascar': '🇲🇬', 'Marshall Islands': '🇲🇭', 'Macedonia': '🇲🇰',
+  'Mali': '🇲🇱', 'Myanmar': '🇲🇲', 'Mongolia': '🇲🇳', 'Macao': '🇲🇴', 'Northern Mariana Islands': '🇲🇵',
+  'Martinique': '🇲🇶', 'Mauritania': '🇲🇷', 'Montserrat': '🇲🇸', 'Malta': '🇲🇹', 'Mauritius': '🇲🇺',
+  'Maldives': '🇲🇻', 'Malawi': '🇲🇼', 'Malaysia': '🇲🇾', 'Mozambique': '🇲🇿', 'Namibia': '🇳🇦',
+  'New Caledonia': '🇳🇨', 'Niger': '🇳🇪', 'Norfolk Island': '🇳🇫', 'Nicaragua': '🇳🇮',
+  'Norway': '🇳🇴', 'Nepal': '🇳🇵', 'Nauru': '🇳🇷', 'Niue': '🇳🇺', 'Oman': '🇴🇲',
+  'Panama': '🇵🇦', 'Peru': '🇵🇪', 'French Polynesia': '🇵🇫', 'Papua New Guinea': '🇵🇬',
+  'Philippines': '🇵🇭', 'Pakistan': '🇵🇰', 'Saint Pierre and Miquelon': '🇵🇲', 'Pitcairn': '🇵🇳',
+  'Puerto Rico': '🇵🇷', 'Palestinian Territory': '🇵🇸', 'Palau': '🇵🇼', 'Paraguay': '🇵🇾',
+  'Qatar': '🇶🇦', 'Réunion': '🇷🇪', 'Rwanda': '🇷🇼', 'Saudi Arabia': '🇸🇦', 'Solomon Islands': '🇸🇧',
+  'Seychelles': '🇸🇨', 'Sudan': '🇸🇩', 'Sweden': '🇸🇪', 'Singapore': '🇸🇬',
+  'Saint Helena, Ascension and Tristan Da Cunha': '🇸🇭', 'Svalbard and Jan Mayen': '🇸🇯',
+  'Sierra Leone': '🇸🇱', 'San Marino': '🇸🇲', 'Somalia': '🇸🇴', 'Suriname': '🇸🇷',
+  'South Sudan': '🇸🇸', 'Sao Tome and Principe': '🇸🇹', 'El Salvador': '🇸🇻',
+  'Sint Maarten (Dutch Part)': '🇸🇽', 'Syrian Arab Republic': '🇸🇾', 'Swaziland': '🇸🇿',
+  'Turks and Caicos Islands': '🇹🇨', 'Chad': '🇹🇩', 'French Southern Territories': '🇹🇫',
+  'Togo': '🇹🇬', 'Thailand': '🇹🇭', 'Tajikistan': '🇹🇯', 'Tokelau': '🇹🇰', 'Timor-Leste': '🇹🇱',
+  'Turkmenistan': '🇹🇲', 'Tunisia': '🇹🇳', 'Tonga': '🇹🇴', 'Trinidad and Tobago': '🇹🇹',
+  'Tuvalu': '🇹🇻', 'Taiwan': '🇹🇼', 'Tanzania': '🇹🇿', 'Ukraine': '🇺🇦', 'Uganda': '🇺🇬',
+  'United States Minor Outlying Islands': '🇺🇲', 'Uruguay': '🇺🇾', 'Uzbekistan': '🇺🇿',
+  'Vatican City': '🇻🇦', 'Saint Vincent and The Grenadines': '🇻🇨', 'Venezuela': '🇻🇪',
+  'Virgin Islands, British': '🇻🇬', 'Virgin Islands, U.S.': '🇻🇮', 'Viet Nam': '🇻🇳', 'Vanuatu': '🇻🇺',
+  'Wallis and Futuna': '🇼🇫', 'Samoa': '🇼🇸', 'Yemen': '🇾🇪', 'Mayotte': '🇾🇹',
+  'South Africa': '🇿🇦', 'Zambia': '🇿🇲', 'Zimbabwe': '🇿🇼'
 };
 
 export default function Game({ player, players, date, isToday, hasPlayed }) {
@@ -147,13 +160,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       if (guess.nationality === player.nationality) greenCount++;
       else redCount++;
 
-      if (guess.jerseyNumber === player.jerseyNumber) greenCount++;
-      else {
-        const jerseyDiff = Math.abs(guess.jerseyNumber - player.jerseyNumber);
-        if (jerseyDiff <= 1) yellowCount++;
-        else redCount++;
-      }
-
       result += '🟩'.repeat(greenCount);
       result += '🟨'.repeat(yellowCount);
       result += '🟥'.repeat(redCount);
@@ -188,7 +194,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   };
 
   const getCountryFlag = (country) => {
-    return countryEmojis[country] || country;
+    return countryEmojis[country] || '🏳️';
   };
 
   const getCellColor = (isCorrect, isClose = false) => {
@@ -215,16 +221,20 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   return (
     <div className="min-h-screen bg-white py-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Score Tracker Left */}
+        {/* Score Tracker Left - HISTORY ONLY */}
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 hidden lg:block">
-          <div className="bg-slate-100 border-2 border-slate-900 rounded-r-lg p-3 space-y-2">
-            <p className="text-xs font-bold text-slate-600 text-center">HISTORY</p>
-            {recentScores.map((item, idx) => (
-              <div key={idx} className="text-center">
-                <p className="text-xs text-slate-500">{new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
-                <p className="text-lg font-black text-slate-900">{item.score}/8</p>
-              </div>
-            ))}
+          <div className="bg-slate-100 border-2 border-slate-900 rounded-r-lg p-3 space-y-2 max-h-80 overflow-y-auto">
+            <p className="text-xs font-bold text-slate-600 text-center sticky top-0 bg-slate-100">HISTORY</p>
+            {recentScores.length > 0 ? (
+              recentScores.map((item, idx) => (
+                <div key={idx} className="text-center text-xs">
+                  <p className="text-slate-500">{new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</p>
+                  <p className="text-sm font-black text-slate-900">{item.score}/8</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-4">No games yet</p>
+            )}
           </div>
         </div>
 
@@ -296,6 +306,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                     <thead>
                       <tr className="bg-slate-900 text-white">
                         <th className="p-2 text-left font-black border-r border-slate-700">Name</th>
+                        <th className="p-2 text-center font-black border-r border-slate-700">Team</th>
                         <th className="p-2 text-center font-black border-r border-slate-700">Pos</th>
                         <th className="p-2 text-center font-black border-r border-slate-700">Ht</th>
                         <th className="p-2 text-center font-black border-r border-slate-700">Age</th>
@@ -310,6 +321,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                             <div className="line-clamp-2">{guess.name}</div>
                             {guess.isCorrect && <span className="text-green-600 ml-1">✓</span>}
                           </td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.team === player.team)}`}>{guess.team.substring(0, 3)}</td>
                           <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
                           <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
                             {getArrow(guess.height, player.height)} {guess.height}
@@ -364,19 +376,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                 <p className="text-lg font-black text-slate-900">{gameWon ? '✓' : gameLost ? '✗' : '▶'}</p>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Score Tracker Right */}
-        <div className="fixed right-0 top-1/2 transform -translate-y-1/2 hidden lg:block">
-          <div className="bg-slate-100 border-2 border-slate-900 rounded-l-lg p-3 space-y-2">
-            <p className="text-xs font-bold text-slate-600 text-center">RECENT</p>
-            {recentScores.map((item, idx) => (
-              <div key={idx} className="text-center">
-                <p className="text-xs text-slate-500">{new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
-                <p className="text-lg font-black text-slate-900">{item.score}/8</p>
-              </div>
-            ))}
           </div>
         </div>
       </div>
