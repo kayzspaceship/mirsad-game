@@ -5,12 +5,12 @@ const MAX_GUESSES = 8;
 export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
-  const [gameWon, setGameWon] = useState(false);
+  const [gameWon || gameLost, setGameWon] = useState(false);
   const [gameLost, setGameLost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
   const makeGuess = (selectedPlayer) => {
-    if (gameWon || gameLost) return;
+    if (gameWon || gameLost || gameLost) return;
 
     const newGuess = {
       name: selectedPlayer.name,
@@ -96,7 +96,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     }
 
     result += `\n${guesses.length}/${MAX_GUESSES}\n`;
-    result += gameWon ? '✅ Başardım!' : gameLost ? '❌ Kaybettim!' : '';
+    result += gameWon || gameLost ? '✅ Başardım!' : gameLost ? '❌ Kaybettim!' : '';
     result += '\n\nmirsad.vercel.app';
     return result;
   };
@@ -119,7 +119,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
   const canPlay = !isToday || !hasPlayed;
 
-  const photoStyle = gameWon 
+  const photoStyle = gameWon || gameLost 
     ? {
         filter: 'brightness(1) saturate(1)',
         opacity: 1
@@ -162,7 +162,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           </div>
         )}
 
-        {canPlay && !gameWon && !gameLost && (
+        {canPlay && !gameWon || gameLost && !gameLost && (
           <div className="mb-6">
             <input
               type="text"
@@ -240,14 +240,14 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           </div>
         )}
 
-        {(gameWon || gameLost) && (
-          <div className={`p-4 rounded-lg mb-6 text-center border-2 text-sm ${gameWon ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
-            <p className="font-bold mb-1">{gameWon ? `🎉 Doğru! ${player.name}` : `😢 Game Over! ${player.name}`}</p>
-            {gameWon && <p className="text-xs">{guesses.length} tahmin ile başardın!</p>}
+        {(gameWon || gameLost || gameLost) && (
+          <div className={`p-4 rounded-lg mb-6 text-center border-2 text-sm ${gameWon || gameLost ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
+            <p className="font-bold mb-1">{gameWon || gameLost ? `🎉 Doğru! ${player.name}` : `😢 Game Over! ${player.name}`}</p>
+            {gameWon || gameLost && <p className="text-xs">{guesses.length} tahmin ile başardın!</p>}
           </div>
         )}
 
-        {(gameWon || gameLost) && (
+        {(gameWon || gameLost || gameLost) && (
           <div className="mb-6 p-4 bg-slate-100 rounded-lg border-2 border-slate-900">
             <p className="text-center font-bold text-slate-900 mb-3 text-sm">Sonucunu Paylaş:</p>
             <div className="flex gap-2 justify-center flex-wrap">
@@ -270,11 +270,11 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           </div>
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
             <p className="text-slate-600 text-xs font-bold">DURUM</p>
-            <p className="text-lg font-black text-slate-900">{gameWon ? '✓' : gameLost ? '✗' : '▶'}</p>
+            <p className="text-lg font-black text-slate-900">{gameWon || gameLost ? '✓' : gameLost ? '✗' : '▶'}</p>
           </div>
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
             <p className="text-slate-600 text-xs font-bold">SİLÜET</p>
-            <p className="text-lg font-black text-slate-900">{gameWon ? '100%' : '0%'}</p>
+            <p className="text-lg font-black text-slate-900">{gameWon || gameLost ? '100%' : '0%'}</p>
           </div>
         </div>
       </div>
