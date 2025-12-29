@@ -96,6 +96,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       age: selectedPlayer.age,
       height: selectedPlayer.height,
       team: selectedPlayer.team,
+      teamAbbr: selectedPlayer.teamAbbr || selectedPlayer.team,
       nationality: selectedPlayer.nationality,
       jerseyNumber: selectedPlayer.jerseyNumber || 0,
       isCorrect: selectedPlayer.id === player.id,
@@ -306,7 +307,8 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                     <thead>
                       <tr className="bg-slate-900 text-white">
                         <th className="p-2 text-left font-black border-r border-slate-700">Name</th>
-                        <th className="p-2 text-center font-black border-r border-slate-700">Team</th>
+                        <th className="p-2 text-center font-black border-r border-slate-700 hidden sm:table-cell">Team</th>
+                        <th className="p-2 text-center font-black border-r border-slate-700 sm:hidden">T</th>
                         <th className="p-2 text-center font-black border-r border-slate-700">Pos</th>
                         <th className="p-2 text-center font-black border-r border-slate-700">Ht</th>
                         <th className="p-2 text-center font-black border-r border-slate-700">Age</th>
@@ -321,8 +323,15 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                             <div className="line-clamp-2">{guess.name}</div>
                             {guess.isCorrect && <span className="text-green-600 ml-1">✓</span>}
                           </td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.team === player.team)}`}>{guess.team.substring(0, 3)}</td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center hidden sm:table-cell text-xs ${getCellColor(guess.team === player.team)}`}>
+                            {guess.team}
+                          </td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center sm:hidden text-xs ${getCellColor(guess.team === player.team)}`}>
+                            {guess.teamAbbr}
+                          </td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>
+                            {guess.position}
+                          </td>
                           <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
                             {getArrow(guess.height, player.height)} {guess.height}
                           </td>
