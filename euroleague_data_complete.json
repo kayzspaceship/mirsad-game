@@ -1,0 +1,8 @@
+[
+  {"id": 1, "name": "SHANE LARKIN", "team": "Anadolu Efes", "position": "G", "nationality": "United States of America", "age": 33, "height": 180, "imageUrl": "https://media-cdn.cortextech.io/8ad5b8f2-3bf2-4ae4-9a49-91160d75f3bb.png"},
+  {"id": 2, "name": "RODRIGUE BEAUBOIS", "team": "Anadolu Efes", "position": "G", "nationality": "France", "age": 37, "height": 188, "imageUrl": "https://media-cdn.cortextech.io/281e3d42-9999-46b7-bbe4-4b03c18af2c5.png"},
+  {"id": 3, "name": "SEHMUS HAZER", "team": "Anadolu Efes", "position": "G", "nationality": "Turkiye", "age": 26, "height": 195, "imageUrl": "https://media-cdn.cortextech.io/4ddb1fa4-97c7-4e34-9d0b-eaf23f9bf632.png"},
+  {"id": 4, "name": "JORDAN LOYD", "team": "Anadolu Efes", "position": "G", "nationality": "United States of America", "age": 32, "height": 194, "imageUrl": "https://media-cdn.cortextech.io/f21f9f12-b440-41a3-87d7-aa3bbe6a36f3.png"},
+  {"id": 5, "name": "VASILIJE MICIC", "team": "Anadolu Efes", "position": "G", "nationality": "Serbia", "age": 27, "height": 198, "imageUrl": "https://media-cdn.cortextech.io/vasilije.png"},
+  {"id": 6, "name": "SERTAC SANLI", "team": "Anadolu Efes", "position": "C", "nationality": "Turkey", "age": 26, "height": 213, "imageUrl": "https://media-cdn.cortextech.io/sertac.png"}
+]
