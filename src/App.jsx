@@ -71,31 +71,43 @@ export default function App() {
 
   const today = new Date().toLocaleDateString('en-CA');
   const minDate = '2025-12-29';
-  const maxDate = today;
 
-  const handleDateChange = (e) => {
-    const newDate = e.target.value;
-    if (newDate <= today) {
-      setSelectedDate(newDate);
+  const changeDate = (days) => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + days);
+    const newDateStr = newDate.toLocaleDateString('en-CA');
+    
+    if (newDateStr <= today) {
+      setSelectedDate(newDateStr);
     }
+  };
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr + 'T00:00:00');
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   return (
     <div className="min-h-screen bg-white">
       <div className="bg-slate-900 text-white p-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center gap-4">
-          <div className="flex-1"></div>
-          <h1 className="text-3xl font-black text-center flex-1">🏀 MIRSAD</h1>
-          <div className="flex-1 flex justify-end">
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              min={minDate}
-              max={maxDate}
-              className="px-3 py-2 rounded bg-white text-slate-900 font-bold text-sm"
-            />
+          <button
+            onClick={() => changeDate(-1)}
+            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded font-bold text-lg transition"
+          >
+            ←
+          </button>
+          <div className="flex-1 text-center">
+            <h1 className="text-3xl font-black mb-2">🏀 MIRSAD</h1>
+            <p className="text-slate-300 text-sm">{formatDate(selectedDate)}</p>
           </div>
+          <button
+            onClick={() => changeDate(1)}
+            disabled={selectedDate >= today}
+            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded font-bold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            →
+          </button>
         </div>
       </div>
 
