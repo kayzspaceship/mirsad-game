@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import Game from './components/Game';
+import Game from './Game';
 
 export default function App() {
   const [players, setPlayers] = useState([]);
@@ -67,7 +67,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <div className="bg-slate-900 text-white p-4 flex justify-between items-center">
         <h1 className="text-3xl font-black">🏀 MIRSAD</h1>
         <div className="flex gap-2">
@@ -82,7 +81,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Content */}
       {loading ? (
         <div className="text-center py-20">
           <p className="text-xl text-slate-600">Yükleniyor...</p>
