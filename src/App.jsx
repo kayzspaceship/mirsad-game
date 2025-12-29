@@ -92,21 +92,14 @@ export default function App() {
             min={minDate}
             max={maxDate}
             className="px-3 py-2 rounded bg-white text-slate-900 font-bold text-sm"
+            disabled={selectedDate === today && playedDates[today]}
           />
         </div>
       </div>
 
-      <ins className="adsbygoogle"
-           style={{ display: 'block', textAlign: 'center' }}
-           data-ad-layout="in-article"
-           data-ad-format="fluid"
-           data-ad-client="ca-pub-2906011828836821"
-           data-ad-slot="7629172935">
-      </ins>
-
       {loading ? (
         <div className="text-center py-20">
-          <p className="text-xl text-slate-600">Yükleniyor...</p>
+          <p className="text-xl text-slate-600">Loading...</p>
         </div>
       ) : player && players.length > 0 ? (
         <Game 
@@ -119,14 +112,10 @@ export default function App() {
       ) : (
         <div className="text-center py-20">
           <p className="text-2xl text-slate-600 font-bold mb-2">📅</p>
-          <p className="text-xl text-slate-600">Bu tarih için oyun hazırlanmadı</p>
-          <p className="text-slate-500 mt-2">Başka bir tarih seç</p>
+          <p className="text-xl text-slate-600">No game scheduled for this date</p>
+          <p className="text-slate-500 mt-2">Select another date</p>
         </div>
       )}
-
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
     </div>
   );
 }
