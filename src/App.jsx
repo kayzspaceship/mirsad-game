@@ -63,7 +63,14 @@ export default function App() {
 
   const today = new Date().toLocaleDateString('en-CA');
   const minDate = '2025-12-29';
-  const maxDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toLocaleDateString('en-CA');
+  const maxDate = today; // SADECE BUGÜNE KADAR
+
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+    if (newDate <= today) {
+      setSelectedDate(newDate);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -73,7 +80,7 @@ export default function App() {
           <input
             type="date"
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={handleDateChange}
             min={minDate}
             max={maxDate}
             className="px-3 py-2 rounded bg-white text-slate-900 font-bold text-sm"
