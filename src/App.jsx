@@ -11,6 +11,14 @@ export default function App() {
   const [playedDates, setPlayedDates] = useState({});
 
   useEffect(() => {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2906011828836821';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+  }, []);
+
+  useEffect(() => {
     const fetchPlayers = async () => {
       try {
         const playersCollection = collection(db, 'players');
@@ -63,7 +71,7 @@ export default function App() {
 
   const today = new Date().toLocaleDateString('en-CA');
   const minDate = '2025-12-29';
-  const maxDate = today; // SADECE BUGÜNE KADAR
+  const maxDate = today;
 
   const handleDateChange = (e) => {
     const newDate = e.target.value;
