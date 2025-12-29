@@ -272,8 +272,8 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                 <tbody>
                   {guesses.map((guess, idx) => (
                     <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200'}>
-                      <td className="p-2 font-bold text-slate-900 border-r border-slate-200 truncate text-xs">
-                        {guess.name.split(' ')[0]}
+                      <td className="p-2 font-bold text-slate-900 border-r border-slate-200 text-xs sm:text-sm">
+                        <div className="line-clamp-2">{guess.name}</div>
                         {guess.isCorrect && <span className="text-green-600 ml-1">✓</span>}
                       </td>
                       <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
