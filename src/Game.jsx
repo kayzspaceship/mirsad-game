@@ -2,53 +2,50 @@ import React, { useState } from 'react';
 
 const MAX_GUESSES = 8;
 
-const countryNames = {
-  'Turkey': 'Turkey',
-  'Turkiye': 'Turkey',
-  'United States of America': 'United States',
-  'USA': 'United States',
-  'France': 'France',
-  'Germany': 'Germany',
-  'Spain': 'Spain',
-  'Italy': 'Italy',
-  'Greece': 'Greece',
-  'Poland': 'Poland',
-  'Serbia': 'Serbia',
-  'Croatia': 'Croatia',
-  'Russia': 'Russia',
-  'Israel': 'Israel',
-  'Lithuania': 'Lithuania',
-  'Latvia': 'Latvia',
-  'Estonia': 'Estonia',
-  'Czech Republic': 'Czech Republic',
-  'Hungary': 'Hungary',
-  'Romania': 'Romania',
-  'Bulgaria': 'Bulgaria',
-  'Slovenia': 'Slovenia',
-  'Montenegro': 'Montenegro',
-  'Bosnia and Herzegovina': 'Bosnia and Herzegovina',
-  'Macedonia': 'North Macedonia',
-  'North Macedonia': 'North Macedonia',
-  'Albania': 'Albania',
-  'Slovakia': 'Slovakia',
-  'Belgium': 'Belgium',
-  'Netherlands': 'Netherlands',
-  'Portugal': 'Portugal',
-  'UK': 'United Kingdom',
-  'United Kingdom': 'United Kingdom',
-  'England': 'United Kingdom',
-  'Canada': 'Canada',
-  'Australia': 'Australia',
-  'New Zealand': 'New Zealand',
-  'Japan': 'Japan',
-  'China': 'China',
-  'South Korea': 'South Korea',
-  'Brazil': 'Brazil',
-  'Argentina': 'Argentina',
-  'Mexico': 'Mexico',
-  'Senegal': 'Senegal',
-  'Nigeria': 'Nigeria',
-  'Egypt': 'Egypt'
+const countryEmojis = {
+  'Turkey': '🇹🇷 Turkey',
+  'Turkiye': '🇹🇷 Turkey',
+  'United States': '🇺🇸 United States',
+  'USA': '🇺🇸 United States',
+  'France': '🇫🇷 France',
+  'Germany': '🇩🇪 Germany',
+  'Spain': '🇪🇸 Spain',
+  'Italy': '🇮🇹 Italy',
+  'Greece': '🇬🇷 Greece',
+  'Poland': '🇵🇱 Poland',
+  'Serbia': '🇷🇸 Serbia',
+  'Croatia': '🇭🇷 Croatia',
+  'Russia': '🇷🇺 Russia',
+  'Israel': '🇮🇱 Israel',
+  'Lithuania': '🇱🇹 Lithuania',
+  'Latvia': '🇱🇻 Latvia',
+  'Estonia': '🇪🇪 Estonia',
+  'Czech Republic': '🇨🇿 Czech Republic',
+  'Hungary': '🇭🇺 Hungary',
+  'Romania': '🇷🇴 Romania',
+  'Bulgaria': '🇧🇬 Bulgaria',
+  'Slovenia': '🇸🇮 Slovenia',
+  'Montenegro': '🇲🇪 Montenegro',
+  'Bosnia and Herzegovina': '🇧🇦 Bosnia',
+  'North Macedonia': '🇲🇰 North Macedonia',
+  'Albania': '🇦🇱 Albania',
+  'Slovakia': '🇸🇰 Slovakia',
+  'Belgium': '🇧🇪 Belgium',
+  'Netherlands': '🇳🇱 Netherlands',
+  'Portugal': '🇵🇹 Portugal',
+  'United Kingdom': '🇬🇧 United Kingdom',
+  'Canada': '🇨🇦 Canada',
+  'Australia': '🇦🇺 Australia',
+  'New Zealand': '🇳🇿 New Zealand',
+  'Japan': '🇯🇵 Japan',
+  'China': '🇨🇳 China',
+  'South Korea': '🇰🇷 South Korea',
+  'Brazil': '🇧🇷 Brazil',
+  'Argentina': '🇦🇷 Argentina',
+  'Mexico': '🇲🇽 Mexico',
+  'Senegal': '🇸🇳 Senegal',
+  'Nigeria': '🇳🇬 Nigeria',
+  'Egypt': '🇪🇬 Egypt'
 };
 
 export default function Game({ player, players, date, isToday, hasPlayed }) {
@@ -167,24 +164,19 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     }
   };
 
-  const getJerseyIndicator = (guessJersey, correctJersey) => {
-    if (guessJersey === correctJersey) return '=';
-    return guessJersey < correctJersey ? '↑' : '↓';
+  const getIndicator = (guessValue, correctValue) => {
+    if (guessValue === correctValue) return '=';
+    return guessValue < correctValue ? '↑' : '↓';
   };
 
-  const getCountryName = (country) => {
-    return countryNames[country] || country;
+  const getCountryEmoji = (country) => {
+    return countryEmojis[country] || country;
   };
 
   const getRowColor = (guess) => {
     if (colorBlindMode) {
-      if (guess.position === player.position) return 'bg-blue-200';
-      if (guess.age === player.age) return 'bg-blue-200';
-      if (guess.height === player.height) return 'bg-blue-200';
-      if (guess.team === player.team) return 'bg-blue-200';
-      if (guess.nationality === player.nationality) return 'bg-blue-200';
-      if (guess.jerseyNumber === player.jerseyNumber) return 'bg-blue-200';
-      return 'bg-orange-200';
+      if (guess.position === player.position && guess.age === player.age && guess.height === player.height && guess.team === player.team && guess.nationality === player.nationality && guess.jerseyNumber === player.jerseyNumber) return 'bg-blue-100';
+      return 'bg-orange-100';
     }
     return guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200';
   };
@@ -305,16 +297,16 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                       {guess.position}
                     </td>
                     <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
-                      {getJerseyIndicator(guess.height, player.height)} {getJerseyIndicator(guess.height, player.height)} {guess.height}cm
+                      {getIndicator(guess.height, player.height)} {guess.height}cm
                     </td>
                     <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
-                      {guess.age}
+                      {getIndicator(guess.age, player.age)} {guess.age}
                     </td>
                     <td className={`p-3 font-bold text-white border-r border-slate-200 ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>
-                      #{guess.jerseyNumber} {getJerseyIndicator(guess.jerseyNumber, player.jerseyNumber)}
+                      #{guess.jerseyNumber} {getIndicator(guess.jerseyNumber, player.jerseyNumber)}
                     </td>
                     <td className={`p-3 font-bold text-white ${getCellColor(guess.nationality === player.nationality)}`}>
-                      {getCountryName(guess.nationality)}
+                      {getCountryEmoji(guess.nationality)}
                     </td>
                   </tr>
                 ))}
