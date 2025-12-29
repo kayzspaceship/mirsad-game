@@ -257,38 +257,36 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
         {guesses.length > 0 && (
           <div className="mb-6 rounded-lg border-2 border-slate-900 overflow-hidden">
-            <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}>
-              <table className="w-full text-sm min-w-max">
+            <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <table className="w-full text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-slate-900 text-white">
-                    <th className="p-3 text-left font-black border-r border-slate-700">Name</th>
-                    <th className="p-3 text-left font-black border-r border-slate-700">Team</th>
-                    <th className="p-3 text-left font-black border-r border-slate-700">Pos</th>
-                    <th className="p-3 text-left font-black border-r border-slate-700">Height</th>
-                    <th className="p-3 text-left font-black border-r border-slate-700">Age</th>
-                    <th className="p-3 text-left font-black border-r border-slate-700">Jersey</th>
-                    <th className="p-3 text-left font-black">Country</th>
+                    <th className="p-2 text-left font-black border-r border-slate-700">Name</th>
+                    <th className="p-2 text-center font-black border-r border-slate-700">Pos</th>
+                    <th className="p-2 text-center font-black border-r border-slate-700">Ht</th>
+                    <th className="p-2 text-center font-black border-r border-slate-700">Age</th>
+                    <th className="p-2 text-center font-black border-r border-slate-700">Jsy</th>
+                    <th className="p-2 text-center font-black">Ctry</th>
                   </tr>
                 </thead>
                 <tbody>
                   {guesses.map((guess, idx) => (
                     <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200'}>
-                      <td className="p-3 font-bold text-slate-900 border-r border-slate-200 whitespace-nowrap">
-                        {guess.name}
-                        {guess.isCorrect && <span className="text-green-600 ml-2">✓</span>}
+                      <td className="p-2 font-bold text-slate-900 border-r border-slate-200 truncate text-xs">
+                        {guess.name.split(' ')[0]}
+                        {guess.isCorrect && <span className="text-green-600 ml-1">✓</span>}
                       </td>
-                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
-                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
-                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
+                      <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
+                      <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
                         {getArrow(guess.height, player.height)} {guess.height}
                       </td>
-                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
+                      <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
                         {getArrow(guess.age, player.age)} {guess.age}
                       </td>
-                      <td className={`p-3 font-bold text-white border-r border-slate-200 whitespace-nowrap ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>
-                        #{guess.jerseyNumber} {getArrow(guess.jerseyNumber, player.jerseyNumber)}
+                      <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>
+                        {getArrow(guess.jerseyNumber, player.jerseyNumber)}{guess.jerseyNumber}
                       </td>
-                      <td className={`p-3 font-bold text-white text-lg whitespace-nowrap ${getCellColor(guess.nationality === player.nationality)}`}>
+                      <td className={`p-2 font-bold text-white text-center text-lg ${getCellColor(guess.nationality === player.nationality)}`}>
                         {getCountryFlag(guess.nationality)}
                       </td>
                     </tr>
