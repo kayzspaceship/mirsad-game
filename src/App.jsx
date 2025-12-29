@@ -79,14 +79,6 @@ export default function App() {
             max={maxDate}
             className="px-3 py-2 rounded bg-white text-slate-900 font-bold text-sm"
           />
-          <a
-            href="http://admin.mirsad.local:5173"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm"
-          >
-            ⚙️ Admin
-          </a>
         </div>
       </div>
 
