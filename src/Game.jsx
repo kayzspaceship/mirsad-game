@@ -243,11 +243,12 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                 const itemDate = new Date(item.date + 'T00:00:00');
                 const today = new Date(date + 'T00:00:00');
                 const isTodayScore = itemDate.getTime() === today.getTime();
+                const isWin = item.score <= MAX_GUESSES && item.score > 0;
                 return (
                   <div key={idx} className="text-center text-xs">
                     <p className="text-slate-500 flex items-center justify-center gap-1">
                       {itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
-                      {isTodayScore && <span className="text-lg">🎉</span>}
+                      {isTodayScore && isWin && <span className="text-lg">🎉</span>}
                     </p>
                     <p className="text-sm font-black text-slate-900">{item.score}/8</p>
                   </div>
