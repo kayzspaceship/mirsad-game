@@ -96,6 +96,14 @@ export default function App() {
         </div>
       </div>
 
+      <ins className="adsbygoogle"
+           style={{ display: 'block', textAlign: 'center' }}
+           data-ad-layout="in-article"
+           data-ad-format="fluid"
+           data-ad-client="ca-pub-2906011828836821"
+           data-ad-slot="7629172935">
+      </ins>
+
       {loading ? (
         <div className="text-center py-20">
           <p className="text-xl text-slate-600">Yükleniyor...</p>
@@ -115,6 +123,10 @@ export default function App() {
           <p className="text-slate-500 mt-2">Başka bir tarih seç</p>
         </div>
       )}
+
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
   );
 }
