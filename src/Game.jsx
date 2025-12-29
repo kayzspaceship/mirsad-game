@@ -69,6 +69,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [gameLost, setGameLost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [colorBlindMode, setColorBlindMode] = useState(false);
+  const [recentScores, setRecentScores] = useState([]);
 
   useEffect(() => {
     document.body.style.overflowX = 'hidden';
@@ -78,13 +79,25 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   }, []);
 
   useEffect(() => {
-    const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
-    return () => {
-      if ((gameWon || gameLost) && guesses.length > 0) {
-        scores[date] = guesses.length;
-        localStorage.setItem('mirsad_scores', JSON.stringify(scores));
-      }
+    const loadScores = () => {
+      const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
+      const dates = Object.keys(scores).sort().reverse().slice(0, 7);
+      const scoreList = dates.map(d => ({ date: d, score: scores[d] }));
+      setRecentScores(scoreList);
     };
+    loadScores();
+  }, []);
+
+  useEffect(() => {
+    if ((gameWon || gameLost) && guesses.length > 0) {
+      const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
+      scores[date] = guesses.length;
+      localStorage.setItem('mirsad_scores', JSON.stringify(scores));
+      
+      const scoreList = Object.keys(scores).sort().reverse().slice(0, 7)
+        .map(d => ({ date: d, score: scores[d] }));
+      setRecentScores(scoreList);
+    }
   }, [gameWon, gameLost, guesses, date]);
 
   const makeGuess = (selectedPlayer) => {
@@ -205,19 +218,11 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     return isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500';
   };
 
-  const getRecentScores = () => {
-    const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
-    const dates = Object.keys(scores).sort().reverse().slice(0, 7);
-    return dates.map(d => ({ date: d, score: scores[d] }));
-  };
-
   const canPlay = !isToday || !hasPlayed;
 
   const photoStyle = (gameWon || gameLost) 
     ? { filter: 'brightness(1) saturate(1)', opacity: 1 }
     : { filter: 'brightness(0)', opacity: 1 };
-
-  const recentScores = getRecentScores();
 
   return (
     <div className="min-h-screen bg-white py-8 overflow-x-hidden">
