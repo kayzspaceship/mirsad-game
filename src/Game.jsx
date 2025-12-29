@@ -174,6 +174,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       if (guess.nationality === player.nationality) greenCount++;
       else redCount++;
 
+      if (guess.jerseyNumber === player.jerseyNumber) greenCount++;
+      else {
+        const jerseyDiff = Math.abs(guess.jerseyNumber - player.jerseyNumber);
+        if (jerseyDiff <= 1) yellowCount++;
+        else redCount++;
+      }
+
       result += '🟩'.repeat(greenCount);
       result += '🟨'.repeat(yellowCount);
       result += '🟥'.repeat(redCount);
