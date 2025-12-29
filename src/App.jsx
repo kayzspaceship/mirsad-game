@@ -82,9 +82,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-slate-900 text-white p-4 flex justify-between items-center">
-        <h1 className="text-3xl font-black">🏀 MIRSAD</h1>
-        <div className="flex gap-2">
+      <div className="bg-slate-900 text-white p-4">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <h1 className="text-3xl font-black">🏀 MIRSAD</h1>
           <input
             type="date"
             value={selectedDate}
