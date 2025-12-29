@@ -316,7 +316,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           </div>
         )}
 
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
             <p className="text-slate-600 text-xs font-bold">GUESSES</p>
             <p className="text-xl font-black text-slate-900">{guesses.length}/{MAX_GUESSES}</p>
@@ -328,10 +328,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
             <p className="text-slate-600 text-xs font-bold">STATUS</p>
             <p className="text-lg font-black text-slate-900">{gameWon ? '✓' : gameLost ? '✗' : '▶'}</p>
-          </div>
-          <div className="bg-slate-100 rounded-lg p-2 text-center border-2 border-slate-900">
-            <p className="text-slate-600 text-xs font-bold">REVEAL</p>
-            <p className="text-lg font-black text-slate-900">{gameWon || gameLost ? '100%' : '0%'}</p>
           </div>
         </div>
       </div>
