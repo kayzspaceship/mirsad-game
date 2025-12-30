@@ -1,25 +1,67 @@
-// ... (başındaki kodları kopyala, ama şu kısımları değiştir):
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import './App.css';
+import Game from './Game';
 
-useEffect(() => {
-  const loadGame = async () => {
+const firebaseConfig = {
+  apiKey: "AIzaSyDmLoWcAl0pS3jYar2rZxSdrjKPIZNemNQ",
+  authDomain: "mirsad-abe91.firebaseapp.com",
+  projectId: "mirsad-abe91",
+  storageBucket: "mirsad-abe91.firebasestorage.app",
+  messagingSenderId: "725337354740",
+  appId: "1:725337354740:web:aee7c1c2a9ac455e3f49a1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<GamePage />} />
+        <Route path="/:date" element={<GamePage />} />
+      </Routes>
+    </Router>
+  );
+}
+
+function GamePage() {
+  const { date: dateParam } = useParams();
+  const navigate = useNavigate();
+  const [date, setDate] = useState(dateParam || new Date().toLocaleDateString('en-CA'));
+  const [player, setPlayer] = useState(null);
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [hasPlayed, setHasPlayed] = useState(false);
+
+  useEffect(() => {
+    loadData();
+  }, [date]);
+
+  const loadData = async () => {
     try {
-      // Önceki oyuncuyu localStorage'dan kontrol et
       const savedPlayer = localStorage.getItem(`player_${date}`);
       if (savedPlayer) {
         setPlayer(JSON.parse(savedPlayer));
-        setLoading(false);
-        return;
+      } else {
+        const q = query(collection(db, 'dailyPlayers'), where('date', '==', date));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          const playerData = snapshot.docs[0].data();
+          setPlayer(playerData);
+          localStorage.setItem(`player_${date}`, JSON.stringify(playerData));
+        }
       }
 
-      const q = query(collection(db, 'dailyPlayers'), where('date', '==', date));
-      const snapshot = await getDocs(q);
-      
-      if (!snapshot.empty) {
-        const playerData = snapshot.docs[0].data();
-        setPlayer(playerData);
-        // localStorage'a kaydet
-        localStorage.setItem(`player_${date}`, JSON.stringify(playerData));
-      }
+      const allPlayers = await getDocs(collection(db, 'players'));
+      setPlayers(allPlayers.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+      const played = localStorage.getItem(`mirsad_played_${date}`);
+      setHasPlayed(!!played);
+
       setLoading(false);
     } catch (error) {
       console.error('Error:', error);
@@ -27,12 +69,23 @@ useEffect(() => {
     }
   };
 
-  loadGame();
-}, [date]);
+  const handleDateChange = (newDate) => {
+    setDate(newDate);
+    navigate(`/${newDate}`);
+  };
 
-// Refresh sonrası bildiğim oyuncu saklı kalsın
-useEffect(() => {
-  if (gameWon && guesses.length > 0) {
-    localStorage.setItem(`player_${date}`, JSON.stringify(player));
+  if (loading) {
+    return <div className="loading">Loading...</div>;
   }
-}, [gameWon, guesses, date, player]);
+
+  return (
+    <div className="app">
+      <div className="date-navigation">
+        <button onClick={() => handleDateChange(new Date(new Date(date + 'T00:00:00').getTime() - 86400000).toLocaleDateString('en-CA'))}>← Prev</button>
+        <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+        <button onClick={() => handleDateChange(new Date(new Date(date + 'T00:00:00').getTime() + 86400000).toLocaleDateString('en-CA'))} disabled={date === new Date().toLocaleDateString('en-CA')}>Next →</button>
+      </div>
+      {player && <Game player={player} players={players} date={date} isToday={date === new Date().toLocaleDateString('en-CA')} hasPlayed={hasPlayed} />}
+    </div>
+  );
+}
