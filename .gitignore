@@ -1,1 +1,6 @@
 mirsad-abe91-firebase-adminsdk-fbsvc-afbd8f4af9.json
+node_modules/
+mirsad-mobile/
+.DS_Store
+*.xlsx
+.vite/
