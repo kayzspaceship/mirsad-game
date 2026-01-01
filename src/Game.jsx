@@ -19,24 +19,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [streak, setStreak] = useState(0);
   const [showImage, setShowImage] = useState(false);
 
-  // Load initial state
   useEffect(() => {
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     
-    // BUGÜN ÖYE KAZANMIŞSA açık olsun
-    if (isToday && scores[date] && scores[date] < MAX_GUESSES) {
-      setShowImage(true);
-    } else {
-      // Geçmiş günler DAIMA kapalı
-      setShowImage(false);
-    }
-
-    // Load scores
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
     const scoreList = dates.map(d => ({ date: d, score: scores[d] }));
     setRecentScores(scoreList);
     
-    // Calculate streak
     let currentStreak = 0;
     const allDates = Object.keys(scores).sort().reverse();
     const today = new Date();
@@ -53,24 +42,10 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       }
     }
     setStreak(currentStreak);
-  }, [date, isToday]);
-
-  // BUGÜN kazanırsa göster
-  useEffect(() => {
-    if (gameWon && isToday) {
-      setShowImage(true);
-      const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
-      scores[date] = guesses.length;
-      localStorage.setItem('mirsad_scores', JSON.stringify(scores));
-      localStorage.setItem(`mirsad_played_${date}`, 'true');
-    }
-  }, [gameWon, guesses, date, isToday]);
+  }, []);
 
   const makeGuess = (selectedPlayer) => {
-    // Bugün oynamışsa veya geçmiş gün ise oynayamasın
-    if (isToday && hasPlayed) return;
-    if (!isToday) return; // Geçmiş günler oynanamasın
-    if (gameWon || gameLost) return;
+    if (!isToday || hasPlayed || gameWon || gameLost) return;
 
     const newGuess = {
       name: selectedPlayer.name,
@@ -91,6 +66,11 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
     if (newGuess.isCorrect) {
       setGameWon(true);
+      setShowImage(true);
+      const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
+      scores[date] = newGuesses.length;
+      localStorage.setItem('mirsad_scores', JSON.stringify(scores));
+      localStorage.setItem(`mirsad_played_${date}`, 'true');
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
       localStorage.setItem(`mirsad_played_${date}`, 'true');
@@ -98,6 +78,8 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   };
 
   const handleSearch = (value) => {
+    if (!isToday || hasPlayed) return;
+    
     setCurrentGuess(value);
     if (value.length < 2) {
       setSearchResults([]);
@@ -114,24 +96,20 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     
     for (let i = 0; i < guesses.length; i++) {
       const guess = guesses[i];
-      let greenCount = 0;
-      let yellowCount = 0;
-      let redCount = 0;
+      let greenCount = 0, yellowCount = 0, redCount = 0;
 
       if (guess.position === player.position) greenCount++;
       else redCount++;
 
       if (guess.age === player.age) greenCount++;
       else {
-        const ageDiff = Math.abs(guess.age - player.age);
-        if (ageDiff <= 3) yellowCount++;
+        if (Math.abs(guess.age - player.age) <= 3) yellowCount++;
         else redCount++;
       }
 
       if (guess.height === player.height) greenCount++;
       else {
-        const heightDiff = Math.abs(guess.height - player.height);
-        if (heightDiff <= 3) yellowCount++;
+        if (Math.abs(guess.height - player.height) <= 3) yellowCount++;
         else redCount++;
       }
 
@@ -143,15 +121,11 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
       if (guess.jerseyNumber === player.jerseyNumber) greenCount++;
       else {
-        const jerseyDiff = Math.abs(guess.jerseyNumber - player.jerseyNumber);
-        if (jerseyDiff <= 1) yellowCount++;
+        if (Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1) yellowCount++;
         else redCount++;
       }
 
-      result += '🟩'.repeat(greenCount);
-      result += '🟨'.repeat(yellowCount);
-      result += '🟥'.repeat(redCount);
-      result += '\n';
+      result += '🟩'.repeat(greenCount) + '🟨'.repeat(yellowCount) + '🟥'.repeat(redCount) + '\n';
     }
 
     result += `\n${guesses.length}/${MAX_GUESSES}\n`;
@@ -176,23 +150,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     }
   };
 
-  const getArrow = (guessVal, correctVal) => {
-    if (guessVal === correctVal) return '';
-    return guessVal < correctVal ? '↑' : '↓';
-  };
-
-  const getCountryFlag = (country) => {
-    return countryEmojis[country] || '🏳️';
-  };
-
+  const getArrow = (guessVal, correctVal) => guessVal === correctVal ? '' : guessVal < correctVal ? '↑' : '↓';
+  const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
   const getCellColor = (isCorrect, isClose = false) => {
-    if (colorBlindMode) {
-      return isCorrect ? 'bg-blue-500' : isClose ? 'bg-amber-500' : 'bg-orange-500';
-    }
+    if (colorBlindMode) return isCorrect ? 'bg-blue-500' : isClose ? 'bg-amber-500' : 'bg-orange-500';
     return isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500';
   };
 
-  const canPlay = isToday && !hasPlayed;
   const photoStyle = (gameWon || gameLost || showImage)
     ? { filter: 'brightness(1) saturate(1)', opacity: 1 }
     : { filter: 'brightness(0)', opacity: 1 };
@@ -200,7 +164,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   return (
     <div className="min-h-screen bg-white py-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Score Tracker Left */}
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 hidden lg:block">
           <div className="bg-slate-100 border-2 border-slate-900 rounded-r-lg p-3 space-y-3 max-h-80 overflow-y-auto">
             <div className="text-center border-b-2 border-slate-900 pb-2">
@@ -209,7 +172,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
             </div>
             
             <div>
-              <p className="text-xs font-bold text-slate-600 text-center sticky top-0 bg-slate-100">HISTORY</p>
+              <p className="text-xs font-bold text-slate-600 text-center">HISTORY</p>
               {recentScores.length > 0 ? (
                 recentScores.map((item, idx) => {
                   const itemDate = new Date(item.date + 'T00:00:00');
@@ -234,7 +197,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="flex justify-center">
           <div className="w-full max-w-2xl">
             <div className="text-center mb-8">
@@ -262,21 +224,20 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
               </div>
             </div>
 
+            {!isToday && (
+              <div className="mb-6 p-4 bg-slate-200 border-2 border-slate-600 rounded text-center text-slate-900">
+                <p className="font-bold">📅 Past Game - View Only</p>
+              </div>
+            )}
+
             {isToday && hasPlayed && (
               <div className="mb-6 p-4 bg-yellow-100 border-2 border-yellow-600 rounded text-center text-yellow-900">
-                <p className="font-bold">😊 You already played today!</p>
+                <p className="font-bold">😊 Already played today!</p>
                 <p className="text-sm">Try again tomorrow.</p>
               </div>
             )}
 
-            {!isToday && (
-              <div className="mb-6 p-4 bg-blue-100 border-2 border-blue-600 rounded text-center text-blue-900">
-                <p className="font-bold">📅 This is a past game</p>
-                <p className="text-sm">You can only play today's game.</p>
-              </div>
-            )}
-
-            {canPlay && !gameWon && !gameLost && (
+            {isToday && !hasPlayed && !gameWon && !gameLost && (
               <div className="mb-6">
                 <input
                   type="text"
@@ -304,7 +265,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
             {guesses.length > 0 && (
               <div className="mb-6 rounded-lg border-2 border-slate-900 overflow-hidden">
-                <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="overflow-x-auto">
                   <table className="w-full text-xs sm:text-sm">
                     <thead>
                       <tr className="bg-slate-900 text-white">
@@ -321,31 +282,14 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                     <tbody>
                       {guesses.map((guess, idx) => (
                         <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200'}>
-                          <td className="p-2 font-bold text-slate-900 border-r border-slate-200 text-xs sm:text-sm">
-                            <div className="line-clamp-2">{guess.name}</div>
-                            {guess.isCorrect && <span className="text-green-600 ml-1">✓</span>}
-                          </td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center hidden sm:table-cell text-xs ${getCellColor(guess.team === player.team)}`}>
-                            {guess.team}
-                          </td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center sm:hidden text-xs ${getCellColor(guess.team === player.team)}`}>
-                            {guess.teamAbbr}
-                          </td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>
-                            {guess.position}
-                          </td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>
-                            {getArrow(guess.height, player.height)} {guess.height}
-                          </td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>
-                            {getArrow(guess.age, player.age)} {guess.age}
-                          </td>
-                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>
-                            {getArrow(guess.jerseyNumber, player.jerseyNumber)}{guess.jerseyNumber}
-                          </td>
-                          <td className={`p-2 font-bold text-white text-center text-lg ${getCellColor(guess.nationality === player.nationality)}`}>
-                            {getCountryFlag(guess.nationality)}
-                          </td>
+                          <td className="p-2 font-bold text-slate-900 border-r border-slate-200 text-xs sm:text-sm"><div className="line-clamp-2">{guess.name}</div>{guess.isCorrect && <span className="text-green-600 ml-1">✓</span>}</td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center hidden sm:table-cell text-xs ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center sm:hidden text-xs ${getCellColor(guess.team === player.team)}`}>{guess.teamAbbr}</td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>{getArrow(guess.height, player.height)} {guess.height}</td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>{getArrow(guess.age, player.age)} {guess.age}</td>
+                          <td className={`p-2 font-bold text-white border-r border-slate-200 text-center text-xs ${getCellColor(guess.jerseyNumber === player.jerseyNumber, Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1)}`}>{getArrow(guess.jerseyNumber, player.jerseyNumber)}{guess.jerseyNumber}</td>
+                          <td className={`p-2 font-bold text-white text-center text-lg ${getCellColor(guess.nationality === player.nationality)}`}>{getCountryFlag(guess.nationality)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -358,7 +302,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
               <div className={`p-4 rounded-lg mb-6 text-center border-2 text-sm ${gameWon ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
                 <p className="font-bold mb-1">{gameWon ? `🎉 Correct! ${player.name}` : `😢 Game Over! ${player.name}`}</p>
                 {gameWon && <p className="text-xs">You guessed in {guesses.length} tries! 🔥 Streak: {streak}</p>}
-                {gameLost && <p className="text-xs">Streak reset 😢</p>}
               </div>
             )}
 
