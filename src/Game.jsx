@@ -23,10 +23,11 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   useEffect(() => {
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     
-    // Check if this date was won
-    if (scores[date] && scores[date] < MAX_GUESSES) {
+    // BUGÜN ÖYE KAZANMIŞSA açık olsun
+    if (isToday && scores[date] && scores[date] < MAX_GUESSES) {
       setShowImage(true);
     } else {
+      // Geçmiş günler DAIMA kapalı
       setShowImage(false);
     }
 
@@ -52,20 +53,23 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       }
     }
     setStreak(currentStreak);
-  }, [date]);
+  }, [date, isToday]);
 
-  // Update when game is won
+  // BUGÜN kazanırsa göster
   useEffect(() => {
-    if (gameWon) {
+    if (gameWon && isToday) {
       setShowImage(true);
       const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
       scores[date] = guesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
       localStorage.setItem(`mirsad_played_${date}`, 'true');
     }
-  }, [gameWon, guesses, date]);
+  }, [gameWon, guesses, date, isToday]);
 
   const makeGuess = (selectedPlayer) => {
+    // Bugün oynamışsa veya geçmiş gün ise oynayamasın
+    if (isToday && hasPlayed) return;
+    if (!isToday) return; // Geçmiş günler oynanamasın
     if (gameWon || gameLost) return;
 
     const newGuess = {
@@ -188,7 +192,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     return isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500';
   };
 
-  const canPlay = !isToday || !hasPlayed;
+  const canPlay = isToday && !hasPlayed;
   const photoStyle = (gameWon || gameLost || showImage)
     ? { filter: 'brightness(1) saturate(1)', opacity: 1 }
     : { filter: 'brightness(0)', opacity: 1 };
@@ -262,6 +266,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
               <div className="mb-6 p-4 bg-yellow-100 border-2 border-yellow-600 rounded text-center text-yellow-900">
                 <p className="font-bold">😊 You already played today!</p>
                 <p className="text-sm">Try again tomorrow.</p>
+              </div>
+            )}
+
+            {!isToday && (
+              <div className="mb-6 p-4 bg-blue-100 border-2 border-blue-600 rounded text-center text-blue-900">
+                <p className="font-bold">📅 This is a past game</p>
+                <p className="text-sm">You can only play today's game.</p>
               </div>
             )}
 
