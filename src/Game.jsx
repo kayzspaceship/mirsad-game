@@ -19,82 +19,51 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [streak, setStreak] = useState(0);
   const [showImage, setShowImage] = useState(false);
 
+  // Load initial state
   useEffect(() => {
-    const loadScores = () => {
-      const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
-      const dates = Object.keys(scores).sort().reverse().slice(0, 7);
-      const scoreList = dates.map(d => ({ date: d, score: scores[d] }));
-      setRecentScores(scoreList);
-      
-      let currentStreak = 0;
-      const allDates = Object.keys(scores).sort().reverse();
-      const today = new Date();
-      
-      for (let i = 0; i < allDates.length; i++) {
-        const gameDate = new Date(allDates[i] + 'T00:00:00');
-        const expectedDate = new Date(today);
-        expectedDate.setDate(expectedDate.getDate() - i);
-        
-        if (gameDate.toLocaleDateString('en-CA') === expectedDate.toLocaleDateString('en-CA') && scores[allDates[i]] < MAX_GUESSES) {
-          currentStreak++;
-        } else {
-          break;
-        }
-      }
-      setStreak(currentStreak);
-    };
-    loadScores();
-  }, []);
-
-  // Check if image should show (today's game won OR previous day)
-  useEffect(() => {
-    if (isToday) {
-      const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
-      if (scores[date] && scores[date] < MAX_GUESSES) {
-        setShowImage(true);
-      }
+    const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
+    
+    // Check if this date was won
+    if (scores[date] && scores[date] < MAX_GUESSES) {
+      setShowImage(true);
     } else {
-      // Previous day - check if it was won
-      const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
-      if (scores[date] && scores[date] < MAX_GUESSES) {
-        setShowImage(true);
+      setShowImage(false);
+    }
+
+    // Load scores
+    const dates = Object.keys(scores).sort().reverse().slice(0, 7);
+    const scoreList = dates.map(d => ({ date: d, score: scores[d] }));
+    setRecentScores(scoreList);
+    
+    // Calculate streak
+    let currentStreak = 0;
+    const allDates = Object.keys(scores).sort().reverse();
+    const today = new Date();
+    
+    for (let i = 0; i < allDates.length; i++) {
+      const gameDate = new Date(allDates[i] + 'T00:00:00');
+      const expectedDate = new Date(today);
+      expectedDate.setDate(expectedDate.getDate() - i);
+      
+      if (gameDate.toLocaleDateString('en-CA') === expectedDate.toLocaleDateString('en-CA') && scores[allDates[i]] < MAX_GUESSES) {
+        currentStreak++;
+      } else {
+        break;
       }
     }
-  }, [date, isToday]);
+    setStreak(currentStreak);
+  }, [date]);
 
+  // Update when game is won
   useEffect(() => {
-    if ((gameWon || gameLost) && guesses.length > 0) {
+    if (gameWon) {
+      setShowImage(true);
       const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
       scores[date] = guesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
-      
-      const scoreList = Object.keys(scores).sort().reverse().slice(0, 7)
-        .map(d => ({ date: d, score: scores[d] }));
-      setRecentScores(scoreList);
-      
-      if (gameWon) {
-        setShowImage(true);
-        const allDates = Object.keys(scores).sort().reverse();
-        let currentStreak = 0;
-        const today = new Date();
-        
-        for (let i = 0; i < allDates.length; i++) {
-          const gameDate = new Date(allDates[i] + 'T00:00:00');
-          const expectedDate = new Date(today);
-          expectedDate.setDate(expectedDate.getDate() - i);
-          
-          if (gameDate.toLocaleDateString('en-CA') === expectedDate.toLocaleDateString('en-CA') && scores[allDates[i]] < MAX_GUESSES) {
-            currentStreak++;
-          } else {
-            break;
-          }
-        }
-        setStreak(currentStreak);
-      } else if (gameLost) {
-        setStreak(0);
-      }
+      localStorage.setItem(`mirsad_played_${date}`, 'true');
     }
-  }, [gameWon, gameLost, guesses, date]);
+  }, [gameWon, guesses, date]);
 
   const makeGuess = (selectedPlayer) => {
     if (gameWon || gameLost) return;
@@ -118,7 +87,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
     if (newGuess.isCorrect) {
       setGameWon(true);
-      localStorage.setItem(`mirsad_played_${date}`, 'true');
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
       localStorage.setItem(`mirsad_played_${date}`, 'true');
