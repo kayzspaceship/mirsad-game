@@ -1,0 +1,37 @@
+.app {
+  min-height: 100vh;
+  background: white;
+}
+
+.date-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #1e293b;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.date-navigation button {
+  background: #475569;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.date-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 20px;
+}
