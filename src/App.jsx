@@ -19,7 +19,6 @@ const db = getFirestore(app);
 
 export default function App() {
   useEffect(() => {
-    // Load AdSense script
     const script = document.createElement('script');
     script.async = true;
     script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2906011828836821";
@@ -50,23 +49,16 @@ function GamePage() {
     loadData();
   }, [date]);
 
-  useEffect(() => {
-    // Push AdSense ads
-    if (window.adsbygoogle) {
-      try {
-        window.adsbygoogle.push({});
-      } catch (e) {
-        console.log('AdSense error:', e);
-      }
-    }
-  }, [player]);
-
   const loadData = async () => {
     try {
+      const today = new Date().toLocaleDateString('en-CA');
+      
+      // Check localStorage first
       const savedPlayer = localStorage.getItem(`player_${date}`);
       if (savedPlayer) {
         setPlayer(JSON.parse(savedPlayer));
       } else {
+        // Load from Firebase
         const q = query(collection(db, 'dailyPlayers'), where('date', '==', date));
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
@@ -105,30 +97,7 @@ function GamePage() {
         <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
         <button onClick={() => handleDateChange(new Date(new Date(date + 'T00:00:00').getTime() + 86400000).toLocaleDateString('en-CA'))} disabled={date === new Date().toLocaleDateString('en-CA')}>Next →</button>
       </div>
-
-      {/* AdSense Banner Ad */}
-      <div className="ad-container" style={{ textAlign: 'center', margin: '20px 0' }}>
-        <ins className="adsbygoogle"
-          style={{ display: 'block' }}
-          data-ad-client="ca-pub-2906011828836821"
-          data-ad-slot="1234567890"
-          data-ad-format="auto"
-          data-full-width-responsive="true">
-        </ins>
-      </div>
-
       {player && <Game player={player} players={players} date={date} isToday={date === new Date().toLocaleDateString('en-CA')} hasPlayed={hasPlayed} />}
-
-      {/* AdSense Sidebar Ad */}
-      <div className="ad-container" style={{ textAlign: 'center', margin: '20px 0' }}>
-        <ins className="adsbygoogle"
-          style={{ display: 'block' }}
-          data-ad-client="ca-pub-2906011828836821"
-          data-ad-slot="0987654321"
-          data-ad-format="auto"
-          data-full-width-responsive="true">
-        </ins>
-      </div>
     </div>
   );
 }
