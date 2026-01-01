@@ -1,10 +1,51 @@
 import React, { useState, useEffect } from 'react';
 
 const MAX_GUESSES = 8;
+
 const countryEmojis = {
-  'Turkey': '🇹🇷', 'Turkiye': '🇹🇷', 'United States': '🇺🇸', 'USA': '🇺🇸',
-  'France': '🇫🇷', 'Germany': '🇩🇪', 'Spain': '🇪🇸', 'Italy': '🇮🇹', 'Greece': '🇬🇷',
-  'Poland': '🇵🇱', 'Serbia': '🇷🇸', 'Croatia': '🇭🇷', 'Russia': '🇷🇺', 'Israel': '🇮🇱',
+  'Turkey': '🇹🇷 Turkey',
+  'Turkiye': '🇹🇷 Turkey',
+  'United States': '🇺🇸 United States',
+  'USA': '🇺🇸 United States',
+  'France': '🇫🇷 France',
+  'Germany': '🇩🇪 Germany',
+  'Spain': '🇪🇸 Spain',
+  'Italy': '🇮🇹 Italy',
+  'Greece': '🇬🇷 Greece',
+  'Poland': '🇵🇱 Poland',
+  'Serbia': '🇷🇸 Serbia',
+  'Croatia': '🇭🇷 Croatia',
+  'Russia': '🇷🇺 Russia',
+  'Israel': '🇮🇱 Israel',
+  'Lithuania': '🇱🇹 Lithuania',
+  'Latvia': '🇱🇻 Latvia',
+  'Estonia': '🇪🇪 Estonia',
+  'Czech Republic': '🇨🇿 Czech Republic',
+  'Hungary': '🇭🇺 Hungary',
+  'Romania': '🇷🇴 Romania',
+  'Bulgaria': '🇧🇬 Bulgaria',
+  'Slovenia': '🇸🇮 Slovenia',
+  'Montenegro': '🇲🇪 Montenegro',
+  'Bosnia and Herzegovina': '🇧🇦 Bosnia',
+  'North Macedonia': '🇲🇰 North Macedonia',
+  'Albania': '🇦🇱 Albania',
+  'Slovakia': '🇸🇰 Slovakia',
+  'Belgium': '🇧🇪 Belgium',
+  'Netherlands': '🇳🇱 Netherlands',
+  'Portugal': '🇵🇹 Portugal',
+  'United Kingdom': '🇬🇧 United Kingdom',
+  'Canada': '🇨🇦 Canada',
+  'Australia': '🇦🇺 Australia',
+  'New Zealand': '🇳🇿 New Zealand',
+  'Japan': '🇯🇵 Japan',
+  'China': '🇨🇳 China',
+  'South Korea': '🇰🇷 South Korea',
+  'Brazil': '🇧🇷 Brazil',
+  'Argentina': '🇦🇷 Argentina',
+  'Mexico': '🇲🇽 Mexico',
+  'Senegal': '🇸🇳 Senegal',
+  'Nigeria': '🇳🇬 Nigeria',
+  'Egypt': '🇪🇬 Egypt'
 };
 
 export default function Game({ player, players, date, isToday, hasPlayed, initialGameState }) {
@@ -41,7 +82,6 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
     setStreak(currentStreak);
   }, []);
 
-  // Save game state when changes
   useEffect(() => {
     if (isToday && (guesses.length > 0 || gameWon || gameLost)) {
       const state = { guesses, gameWon, gameLost };
