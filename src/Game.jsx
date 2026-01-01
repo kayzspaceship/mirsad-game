@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const MAX_GUESSES = 8;
-
 const countryEmojis = {
   'Turkey': '🇹🇷', 'Turkiye': '🇹🇷', 'United States': '🇺🇸', 'USA': '🇺🇸',
   'France': '🇫🇷', 'Germany': '🇩🇪', 'Spain': '🇪🇸', 'Italy': '🇮🇹', 'Greece': '🇬🇷',
@@ -19,12 +18,11 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [streak, setStreak] = useState(0);
   const [showImage, setShowImage] = useState(false);
 
+  // Load scores on mount
   useEffect(() => {
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
-    
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
-    const scoreList = dates.map(d => ({ date: d, score: scores[d] }));
-    setRecentScores(scoreList);
+    setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
     
     let currentStreak = 0;
     const allDates = Object.keys(scores).sort().reverse();
@@ -45,7 +43,11 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   }, []);
 
   const makeGuess = (selectedPlayer) => {
-    if (!isToday || hasPlayed || gameWon || gameLost) return;
+    // RULE: Only today, only if not played
+    if (!isToday) return;
+    if (hasPlayed) return;
+    if (gameWon) return;
+    if (gameLost) return;
 
     const newGuess = {
       name: selectedPlayer.name,
@@ -67,10 +69,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     if (newGuess.isCorrect) {
       setGameWon(true);
       setShowImage(true);
+      
+      // Save to localStorage
       const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
       scores[date] = newGuesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
       localStorage.setItem(`mirsad_played_${date}`, 'true');
+      
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
       localStorage.setItem(`mirsad_played_${date}`, 'true');
@@ -93,7 +98,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
   const getShareEmoji = () => {
     let result = '🎯 MIRSAD\n\n';
-    
     for (let i = 0; i < guesses.length; i++) {
       const guess = guesses[i];
       let greenCount = 0, yellowCount = 0, redCount = 0;
@@ -102,16 +106,12 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       else redCount++;
 
       if (guess.age === player.age) greenCount++;
-      else {
-        if (Math.abs(guess.age - player.age) <= 3) yellowCount++;
-        else redCount++;
-      }
+      else if (Math.abs(guess.age - player.age) <= 3) yellowCount++;
+      else redCount++;
 
       if (guess.height === player.height) greenCount++;
-      else {
-        if (Math.abs(guess.height - player.height) <= 3) yellowCount++;
-        else redCount++;
-      }
+      else if (Math.abs(guess.height - player.height) <= 3) yellowCount++;
+      else redCount++;
 
       if (guess.team === player.team) greenCount++;
       else redCount++;
@@ -120,16 +120,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       else redCount++;
 
       if (guess.jerseyNumber === player.jerseyNumber) greenCount++;
-      else {
-        if (Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1) yellowCount++;
-        else redCount++;
-      }
+      else if (Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1) yellowCount++;
+      else redCount++;
 
       result += '🟩'.repeat(greenCount) + '🟨'.repeat(yellowCount) + '🟥'.repeat(redCount) + '\n';
     }
-
     result += `\n${guesses.length}/${MAX_GUESSES}\n`;
-    result += gameWon ? `✅ I guessed it! 🔥 Streak: ${streak}` : gameLost ? '❌ Game Over!' : '';
+    result += gameWon ? `✅ I guessed it! 🔥 Streak: ${streak}` : '';
     result += '\n\nmirsad.co';
     return result;
   };
@@ -152,14 +149,9 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
 
   const getArrow = (guessVal, correctVal) => guessVal === correctVal ? '' : guessVal < correctVal ? '↑' : '↓';
   const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
-  const getCellColor = (isCorrect, isClose = false) => {
-    if (colorBlindMode) return isCorrect ? 'bg-blue-500' : isClose ? 'bg-amber-500' : 'bg-orange-500';
-    return isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500';
-  };
+  const getCellColor = (isCorrect, isClose = false) => colorBlindMode ? (isCorrect ? 'bg-blue-500' : isClose ? 'bg-amber-500' : 'bg-orange-500') : (isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500');
 
-  const photoStyle = (gameWon || gameLost || showImage)
-    ? { filter: 'brightness(1) saturate(1)', opacity: 1 }
-    : { filter: 'brightness(0)', opacity: 1 };
+  const photoStyle = (gameWon || gameLost || showImage) ? { filter: 'brightness(1) saturate(1)', opacity: 1 } : { filter: 'brightness(0)', opacity: 1 };
 
   return (
     <div className="min-h-screen bg-white py-8 overflow-x-hidden">
@@ -170,29 +162,23 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
               <p className="text-xs font-bold text-slate-600">STREAK</p>
               <p className="text-3xl font-black">🔥 {streak}</p>
             </div>
-            
             <div>
               <p className="text-xs font-bold text-slate-600 text-center">HISTORY</p>
-              {recentScores.length > 0 ? (
-                recentScores.map((item, idx) => {
-                  const itemDate = new Date(item.date + 'T00:00:00');
-                  const today = new Date(date + 'T00:00:00');
-                  const isTodayScore = itemDate.getTime() === today.getTime();
-                  const isWin = item.score < MAX_GUESSES;
-                  return (
-                    <div key={idx} className="text-center text-xs">
-                      <p className="text-slate-500 flex items-center justify-center gap-1">
-                        {itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
-                        {isTodayScore && isWin && <span className="text-lg">🎉</span>}
-                        {isTodayScore && !isWin && <span className="text-lg">❌</span>}
-                      </p>
-                      <p className="text-sm font-black text-slate-900">{item.score}/8</p>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-xs text-slate-400 text-center py-2">No games yet</p>
-              )}
+              {recentScores.length > 0 ? recentScores.map((item, idx) => {
+                const itemDate = new Date(item.date + 'T00:00:00');
+                const today = new Date(date + 'T00:00:00');
+                const isWin = item.score < MAX_GUESSES;
+                return (
+                  <div key={idx} className="text-center text-xs">
+                    <p className="text-slate-500 flex items-center justify-center gap-1">
+                      {itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                      {itemDate.getTime() === today.getTime() && isWin && <span className="text-lg">🎉</span>}
+                      {itemDate.getTime() === today.getTime() && !isWin && <span className="text-lg">❌</span>}
+                    </p>
+                    <p className="text-sm font-black text-slate-900">{item.score}/8</p>
+                  </div>
+                );
+              }) : <p className="text-xs text-slate-400 text-center py-2">No games yet</p>}
             </div>
           </div>
         </div>
@@ -202,58 +188,27 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
             <div className="text-center mb-8">
               <h2 className="text-4xl font-black text-slate-900 mb-4">Today's Player</h2>
               <p className="text-2xl font-black mb-2">🔥 {streak}</p>
-              <button
-                onClick={() => setColorBlindMode(!colorBlindMode)}
-                className={`px-3 py-2 rounded text-sm font-bold transition ${
-                  colorBlindMode ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-900'
-                }`}
-              >
+              <button onClick={() => setColorBlindMode(!colorBlindMode)} className={`px-3 py-2 rounded text-sm font-bold transition ${colorBlindMode ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-900'}`}>
                 🎨 {colorBlindMode ? 'Normal' : 'Color Blind'}
               </button>
             </div>
 
             <div className="mb-8 flex justify-center">
               <div className="relative w-48 h-64 rounded-xl overflow-hidden shadow-2xl border-4 border-slate-900 bg-white">
-                {player.imageUrl && (
-                  <img
-                    src={player.imageUrl}
-                    alt="Player"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', ...photoStyle, transition: 'all 0.5s ease-in-out' }}
-                  />
-                )}
+                {player.imageUrl && <img src={player.imageUrl} alt="Player" style={{ width: '100%', height: '100%', objectFit: 'cover', ...photoStyle, transition: 'all 0.5s ease-in-out' }} />}
               </div>
             </div>
 
-            {!isToday && (
-              <div className="mb-6 p-4 bg-slate-200 border-2 border-slate-600 rounded text-center text-slate-900">
-                <p className="font-bold">📅 Past Game - View Only</p>
-              </div>
-            )}
-
-            {isToday && hasPlayed && (
-              <div className="mb-6 p-4 bg-yellow-100 border-2 border-yellow-600 rounded text-center text-yellow-900">
-                <p className="font-bold">😊 Already played today!</p>
-                <p className="text-sm">Try again tomorrow.</p>
-              </div>
-            )}
+            {!isToday && <div className="mb-6 p-4 bg-slate-200 border-2 border-slate-600 rounded text-center text-slate-900"><p className="font-bold">📅 Past Game - View Only</p></div>}
+            {isToday && hasPlayed && <div className="mb-6 p-4 bg-yellow-100 border-2 border-yellow-600 rounded text-center text-yellow-900"><p className="font-bold">😊 Already played today!</p></div>}
 
             {isToday && !hasPlayed && !gameWon && !gameLost && (
               <div className="mb-6">
-                <input
-                  type="text"
-                  value={currentGuess}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  placeholder="Type player name..."
-                  className="w-full px-4 py-3 rounded-lg bg-white text-slate-900 border-2 border-slate-900 outline-none text-sm"
-                />
+                <input type="text" value={currentGuess} onChange={(e) => handleSearch(e.target.value)} placeholder="Type player name..." className="w-full px-4 py-3 rounded-lg bg-white text-slate-900 border-2 border-slate-900 outline-none text-sm" />
                 {searchResults.length > 0 && (
                   <div className="mt-2 bg-white border-2 border-slate-900 rounded-lg overflow-hidden max-h-60 overflow-y-auto">
                     {searchResults.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => makeGuess(p)}
-                        className="w-full px-4 py-2 text-left hover:bg-slate-100 transition text-slate-900 border-b border-slate-200 last:border-b-0 text-sm"
-                      >
+                      <button key={p.id} onClick={() => makeGuess(p)} className="w-full px-4 py-2 text-left hover:bg-slate-100 transition text-slate-900 border-b border-slate-200 last:border-b-0 text-sm">
                         <div className="font-bold">{p.name}</div>
                         <div className="text-xs text-slate-600">{p.team}</div>
                       </button>
@@ -282,7 +237,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
                     <tbody>
                       {guesses.map((guess, idx) => (
                         <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b border-slate-200'}>
-                          <td className="p-2 font-bold text-slate-900 border-r border-slate-200 text-xs sm:text-sm"><div className="line-clamp-2">{guess.name}</div>{guess.isCorrect && <span className="text-green-600 ml-1">✓</span>}</td>
+                          <td className="p-2 font-bold text-slate-900 border-r border-slate-200 text-xs sm:text-sm"><div className="line-clamp-2">{guess.name}</div>{guess.isCorrect && <span className="text-green-600">✓</span>}</td>
                           <td className={`p-2 font-bold text-white border-r border-slate-200 text-center hidden sm:table-cell text-xs ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
                           <td className={`p-2 font-bold text-white border-r border-slate-200 text-center sm:hidden text-xs ${getCellColor(guess.team === player.team)}`}>{guess.teamAbbr}</td>
                           <td className={`p-2 font-bold text-white border-r border-slate-200 text-center ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
