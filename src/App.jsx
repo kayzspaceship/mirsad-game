@@ -58,7 +58,6 @@ function GamePage() {
       if (savedPlayer) {
         setPlayer(JSON.parse(savedPlayer));
       } else {
-        // Load from Firebase
         const q = query(collection(db, 'dailyPlayers'), where('date', '==', date));
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
@@ -71,6 +70,7 @@ function GamePage() {
       const allPlayers = await getDocs(collection(db, 'players'));
       setPlayers(allPlayers.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
+      // CHECK IF PLAYED - Bu çok önemli!
       const played = localStorage.getItem(`mirsad_played_${date}`);
       setHasPlayed(!!played);
 
