@@ -7,18 +7,17 @@ const countryEmojis = {
   'Poland': '🇵🇱', 'Serbia': '🇷🇸', 'Croatia': '🇭🇷', 'Russia': '🇷🇺', 'Israel': '🇮🇱',
 };
 
-export default function Game({ player, players, date, isToday, hasPlayed }) {
-  const [guesses, setGuesses] = useState([]);
+export default function Game({ player, players, date, isToday, hasPlayed, initialGameState }) {
+  const [guesses, setGuesses] = useState(initialGameState?.guesses || []);
   const [currentGuess, setCurrentGuess] = useState('');
-  const [gameWon, setGameWon] = useState(false);
-  const [gameLost, setGameLost] = useState(false);
+  const [gameWon, setGameWon] = useState(initialGameState?.gameWon || false);
+  const [gameLost, setGameLost] = useState(initialGameState?.gameLost || false);
   const [searchResults, setSearchResults] = useState([]);
   const [colorBlindMode, setColorBlindMode] = useState(false);
   const [recentScores, setRecentScores] = useState([]);
   const [streak, setStreak] = useState(0);
-  const [showImage, setShowImage] = useState(false);
+  const [showImage, setShowImage] = useState(gameWon || initialGameState?.gameWon || false);
 
-  // Load scores on mount
   useEffect(() => {
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
@@ -42,8 +41,15 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
     setStreak(currentStreak);
   }, []);
 
+  // Save game state when changes
+  useEffect(() => {
+    if (isToday && (guesses.length > 0 || gameWon || gameLost)) {
+      const state = { guesses, gameWon, gameLost };
+      localStorage.setItem(`gameState_${date}`, JSON.stringify(state));
+    }
+  }, [guesses, gameWon, gameLost, date, isToday]);
+
   const makeGuess = (selectedPlayer) => {
-    // RULE: Only today, only if not played
     if (!isToday) return;
     if (hasPlayed) return;
     if (gameWon) return;
@@ -70,15 +76,12 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       setGameWon(true);
       setShowImage(true);
       
-      // Save to localStorage
       const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
       scores[date] = newGuesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
-      localStorage.setItem(`mirsad_played_${date}`, 'true');
       
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
-      localStorage.setItem(`mirsad_played_${date}`, 'true');
     }
   };
 
@@ -165,15 +168,12 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
             <div>
               <p className="text-xs font-bold text-slate-600 text-center">HISTORY</p>
               {recentScores.length > 0 ? recentScores.map((item, idx) => {
-                const itemDate = new Date(item.date + 'T00:00:00');
-                const today = new Date(date + 'T00:00:00');
                 const isWin = item.score < MAX_GUESSES;
                 return (
                   <div key={idx} className="text-center text-xs">
                     <p className="text-slate-500 flex items-center justify-center gap-1">
-                      {itemDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
-                      {itemDate.getTime() === today.getTime() && isWin && <span className="text-lg">🎉</span>}
-                      {itemDate.getTime() === today.getTime() && !isWin && <span className="text-lg">❌</span>}
+                      {new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                      {isWin ? <span className="text-lg">🎉</span> : <span className="text-lg">❌</span>}
                     </p>
                     <p className="text-sm font-black text-slate-900">{item.score}/8</p>
                   </div>
