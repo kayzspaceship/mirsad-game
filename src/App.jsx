@@ -45,12 +45,15 @@ function GamePage() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasPlayed, setHasPlayed] = useState(false);
+  const [key, setKey] = useState(0);
 
+  // URL parametresi değiştiğinde
   useEffect(() => {
-    if (dateParam && dateParam !== date) {
+    if (dateParam) {
       setDate(dateParam);
       const played = !!localStorage.getItem(`mirsad_played_${dateParam}`);
       setHasPlayed(played);
+      setKey(prev => prev + 1); // Force re-render Game component
     }
   }, [dateParam]);
 
@@ -96,9 +99,6 @@ function GamePage() {
   };
 
   const handleDateChange = (newDate) => {
-    setDate(newDate);
-    const played = !!localStorage.getItem(`mirsad_played_${newDate}`);
-    setHasPlayed(played);
     navigate(`/${newDate}`);
   };
 
@@ -127,7 +127,7 @@ function GamePage() {
         <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
         <button onClick={handleNextDate} disabled={date >= today}>Next →</button>
       </div>
-      {player && <Game player={player} players={players} date={date} isToday={date === today} hasPlayed={hasPlayed} />}
+      {player && <Game key={key} player={player} players={players} date={date} isToday={date === today} hasPlayed={hasPlayed} />}
       {!player && (
         <div className="text-center py-20">
           <p className="text-2xl text-slate-600 font-bold mb-2">📅</p>
