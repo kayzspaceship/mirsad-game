@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as HashRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import './App.css';
@@ -47,8 +47,10 @@ function GamePage() {
   const [hasPlayed, setHasPlayed] = useState(false);
 
   useEffect(() => {
-    if (dateParam) {
+    if (dateParam && dateParam !== date) {
       setDate(dateParam);
+      const played = localStorage.getItem(`mirsad_played_${dateParam}`);
+      setHasPlayed(!!played);
     }
   }, [dateParam]);
 
@@ -78,18 +80,13 @@ function GamePage() {
         console.error('Settings error:', error);
       }
 
-      if (playerData) {
-        setPlayer(playerData);
-      }
+      setPlayer(playerData || null);
 
       const allPlayers = await getDocs(collection(db, 'players'));
       setPlayers(allPlayers.docs.map(doc => ({ 
         id: parseInt(doc.id),
         ...doc.data() 
       })));
-
-      const played = localStorage.getItem(`mirsad_played_${date}`);
-      setHasPlayed(!!played);
 
       setLoading(false);
     } catch (error) {
@@ -100,7 +97,8 @@ function GamePage() {
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
-    setHasPlayed(!!localStorage.getItem(`mirsad_played_${newDate}`));
+    const played = localStorage.getItem(`mirsad_played_${newDate}`);
+    setHasPlayed(!!played);
     navigate(`/#/${newDate}`);
   };
 
@@ -127,7 +125,7 @@ function GamePage() {
       <div className="date-navigation">
         <button onClick={handlePrevDate}>← Prev</button>
         <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-        <button onClick={handleNextDate} disabled={date === today}>Next →</button>
+        <button onClick={handleNextDate} disabled={date >= today}>Next →</button>
       </div>
       {player && <Game player={player} players={players} date={date} isToday={date === today} hasPlayed={hasPlayed} />}
       {!player && (
