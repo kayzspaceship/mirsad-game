@@ -63,6 +63,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
   const showImageKey = `showImage_${date}`;
   const playedKey = `mirsad_played_${date}`;
 
+  // Tarih değiştiğinde state'i yeniden yükle
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
@@ -72,12 +73,20 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
       setGuesses(state.guesses || []);
       setGameWon(state.gameWon || false);
       setGameLost(state.gameLost || false);
+    } else {
+      // State sıfırla eğer bu günün kaydı yoksa
+      setGuesses([]);
+      setGameWon(false);
+      setGameLost(false);
     }
 
     if (savedShowImage === 'true') {
       setShowImage(true);
+    } else {
+      setShowImage(false);
     }
 
+    // Streak hesapla
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
     setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
@@ -100,18 +109,21 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
     setStreak(currentStreak);
   }, [date, gameStateKey, showImageKey]);
 
+  // State değiştiğinde localStorage'a kaydet
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
   }, [guesses, gameWon, gameLost, gameStateKey]);
 
+  // showImage değiştiğinde localStorage'a kaydet
   useEffect(() => {
     localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
   }, [showImage, showImageKey]);
 
   const makeGuess = (selectedPlayer) => {
-    if (!isToday) return;
-    if (hasPlayed) return;
+    // Bugün ise ve zaten oynadıysa, oynama
+    if (isToday && hasPlayed) return;
+    // Oyun bitmediyse
     if (gameWon || gameLost) return;
 
     const newGuess = {
@@ -139,15 +151,22 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
       scores[date] = newGuesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
       
-      localStorage.setItem(playedKey, 'true');
+      // Sadece bugün ise oynanmış olarak işaretle
+      if (isToday) {
+        localStorage.setItem(playedKey, 'true');
+      }
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
-      localStorage.setItem(playedKey, 'true');
+      // Sadece bugün ise oynanmış olarak işaretle
+      if (isToday) {
+        localStorage.setItem(playedKey, 'true');
+      }
     }
   };
 
   const handleSearch = (value) => {
-    if (!isToday || hasPlayed) return;
+    // Bugün ise ve zaten oynadıysa ara
+    if (isToday && hasPlayed) return;
     
     setCurrentGuess(value);
     if (value.length < 2) {
@@ -263,7 +282,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
             {!isToday && <div className="mb-6 p-4 bg-slate-200 border-2 border-slate-600 rounded text-center text-slate-900"><p className="font-bold">📅 Past Game - View Only</p></div>}
             {isToday && hasPlayed && <div className="mb-6 p-4 bg-yellow-100 border-2 border-yellow-600 rounded text-center text-yellow-900"><p className="font-bold">😊 Already played today!</p></div>}
 
-            {isToday && !hasPlayed && !gameWon && !gameLost && (
+            {(!isToday || (!hasPlayed && isToday)) && !gameWon && !gameLost && (
               <div className="mb-6">
                 <input type="text" value={currentGuess} onChange={(e) => handleSearch(e.target.value)} placeholder="Type player name..." className="w-full px-4 py-3 rounded-lg bg-white text-slate-900 border-2 border-slate-900 outline-none text-sm" />
                 {searchResults.length > 0 && (
