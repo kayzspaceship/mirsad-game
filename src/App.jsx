@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import './App.css';
 import Game from './Game';
 
@@ -45,6 +45,13 @@ function GamePage() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasPlayed, setHasPlayed] = useState(false);
+
+  // URL parametresi değiştiğinde state'i güncelle
+  useEffect(() => {
+    if (dateParam) {
+      setDate(dateParam);
+    }
+  }, [dateParam]);
 
   useEffect(() => {
     loadData();
