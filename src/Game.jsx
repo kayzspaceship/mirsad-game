@@ -1,4 +1,3 @@
-cat > /tmp/game_new.jsx << 'EOF'
 import React, { useState, useEffect } from 'react';
 
 const MAX_GUESSES = 8;
