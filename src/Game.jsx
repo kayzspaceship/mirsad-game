@@ -1,3 +1,4 @@
+cat > /tmp/game_new.jsx << 'EOF'
 import React, { useState, useEffect } from 'react';
 
 const MAX_GUESSES = 8;
@@ -49,17 +50,35 @@ const countryEmojis = {
 };
 
 export default function Game({ player, players, date, isToday, hasPlayed, initialGameState }) {
-  const [guesses, setGuesses] = useState(initialGameState?.guesses || []);
+  const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
-  const [gameWon, setGameWon] = useState(initialGameState?.gameWon || false);
-  const [gameLost, setGameLost] = useState(initialGameState?.gameLost || false);
+  const [gameWon, setGameWon] = useState(false);
+  const [gameLost, setGameLost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [colorBlindMode, setColorBlindMode] = useState(false);
   const [recentScores, setRecentScores] = useState([]);
   const [streak, setStreak] = useState(0);
-  const [showImage, setShowImage] = useState(gameWon || initialGameState?.gameWon || false);
+  const [showImage, setShowImage] = useState(false);
+
+  const gameStateKey = `gameState_${date}`;
+  const showImageKey = `showImage_${date}`;
+  const playedKey = `mirsad_played_${date}`;
 
   useEffect(() => {
+    const savedGameState = localStorage.getItem(gameStateKey);
+    const savedShowImage = localStorage.getItem(showImageKey);
+
+    if (savedGameState) {
+      const state = JSON.parse(savedGameState);
+      setGuesses(state.guesses || []);
+      setGameWon(state.gameWon || false);
+      setGameLost(state.gameLost || false);
+    }
+
+    if (savedShowImage === 'true') {
+      setShowImage(true);
+    }
+
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
     setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
@@ -80,20 +99,21 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
       }
     }
     setStreak(currentStreak);
-  }, []);
+  }, [date, gameStateKey, showImageKey]);
 
   useEffect(() => {
-    if (isToday && (guesses.length > 0 || gameWon || gameLost)) {
-      const state = { guesses, gameWon, gameLost };
-      localStorage.setItem(`gameState_${date}`, JSON.stringify(state));
-    }
-  }, [guesses, gameWon, gameLost, date, isToday]);
+    const state = { guesses, gameWon, gameLost };
+    localStorage.setItem(gameStateKey, JSON.stringify(state));
+  }, [guesses, gameWon, gameLost, gameStateKey]);
+
+  useEffect(() => {
+    localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
+  }, [showImage, showImageKey]);
 
   const makeGuess = (selectedPlayer) => {
     if (!isToday) return;
     if (hasPlayed) return;
-    if (gameWon) return;
-    if (gameLost) return;
+    if (gameWon || gameLost) return;
 
     const newGuess = {
       name: selectedPlayer.name,
@@ -120,8 +140,10 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
       scores[date] = newGuesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
       
+      localStorage.setItem(playedKey, 'true');
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
+      localStorage.setItem(playedKey, 'true');
     }
   };
 
@@ -162,15 +184,15 @@ export default function Game({ player, players, date, isToday, hasPlayed, initia
       if (guess.nationality === player.nationality) greenCount++;
       else redCount++;
 
-      if (guess.jerseyNumber === player.jerseyNumber) greenCount++;
-      else if (Math.abs(guess.jerseyNumber - player.jerseyNumber) <= 1) yellowCount++;
-      else redCount++;
-
-      result += '🟩'.repeat(greenCount) + '🟨'.repeat(yellowCount) + '🟥'.repeat(redCount) + '\n';
+      result += '🟩'.repeat(greenCount);
+      result += '🟨'.repeat(yellowCount);
+      result += '🟥'.repeat(redCount);
+      result += '\n';
     }
+
     result += `\n${guesses.length}/${MAX_GUESSES}\n`;
-    result += gameWon ? `✅ I guessed it! 🔥 Streak: ${streak}` : '';
-    result += '\n\nmirsad.co';
+    result += gameWon ? '✅ Başardım!' : gameLost ? '❌ Kaybettim!' : '';
+    result += '\n\nmirsad.vercel.app';
     return result;
   };
 

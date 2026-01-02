@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import './App.css';
 import Game from './Game';
 
@@ -39,7 +39,8 @@ export default function App() {
 function GamePage() {
   const { date: dateParam } = useParams();
   const navigate = useNavigate();
-  const [date, setDate] = useState(dateParam || new Date().toLocaleDateString('en-CA'));
+  const today = new Date().toLocaleDateString('en-CA');
+  const [date, setDate] = useState(dateParam || today);
   const [player, setPlayer] = useState(null);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,26 +52,36 @@ function GamePage() {
 
   const loadData = async () => {
     try {
-      const today = new Date().toLocaleDateString('en-CA');
+      setLoading(true);
       
-      // Check localStorage first
-      const savedPlayer = localStorage.getItem(`player_${date}`);
-      if (savedPlayer) {
-        setPlayer(JSON.parse(savedPlayer));
-      } else {
-        const q = query(collection(db, 'dailyPlayers'), where('date', '==', date));
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-          const playerData = snapshot.docs[0].data();
-          setPlayer(playerData);
-          localStorage.setItem(`player_${date}`, JSON.stringify(playerData));
+      let playerData = null;
+      
+      try {
+        const settingsDoc = await getDoc(doc(db, 'settings', date));
+        if (settingsDoc.exists()) {
+          const playerId = settingsDoc.data().playerId;
+          const playerDoc = await getDoc(doc(db, 'players', String(playerId)));
+          if (playerDoc.exists()) {
+            playerData = {
+              id: parseInt(playerDoc.id),
+              ...playerDoc.data()
+            };
+          }
         }
+      } catch (error) {
+        console.error('Settings error:', error);
+      }
+
+      if (playerData) {
+        setPlayer(playerData);
       }
 
       const allPlayers = await getDocs(collection(db, 'players'));
-      setPlayers(allPlayers.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setPlayers(allPlayers.docs.map(doc => ({ 
+        id: parseInt(doc.id),
+        ...doc.data() 
+      })));
 
-      // CHECK IF PLAYED - Bu çok önemli!
       const played = localStorage.getItem(`mirsad_played_${date}`);
       setHasPlayed(!!played);
 
@@ -86,6 +97,20 @@ function GamePage() {
     navigate(`/${newDate}`);
   };
 
+  const handlePrevDate = () => {
+    const prevDate = new Date(new Date(date + 'T00:00:00').getTime() - 86400000);
+    const prevDateStr = prevDate.toLocaleDateString('en-CA');
+    handleDateChange(prevDateStr);
+  };
+
+  const handleNextDate = () => {
+    const nextDate = new Date(new Date(date + 'T00:00:00').getTime() + 86400000);
+    const nextDateStr = nextDate.toLocaleDateString('en-CA');
+    if (nextDateStr <= today) {
+      handleDateChange(nextDateStr);
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -93,11 +118,18 @@ function GamePage() {
   return (
     <div className="app">
       <div className="date-navigation">
-        <button onClick={() => handleDateChange(new Date(new Date(date + 'T00:00:00').getTime() - 86400000).toLocaleDateString('en-CA'))}>← Prev</button>
+        <button onClick={handlePrevDate}>← Prev</button>
         <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-        <button onClick={() => handleDateChange(new Date(new Date(date + 'T00:00:00').getTime() + 86400000).toLocaleDateString('en-CA'))} disabled={date === new Date().toLocaleDateString('en-CA')}>Next →</button>
+        <button onClick={handleNextDate} disabled={date === today}>Next →</button>
       </div>
-      {player && <Game player={player} players={players} date={date} isToday={date === new Date().toLocaleDateString('en-CA')} hasPlayed={hasPlayed} />}
+      {player && <Game player={player} players={players} date={date} isToday={date === today} hasPlayed={hasPlayed} />}
+      {!player && (
+        <div className="text-center py-20">
+          <p className="text-2xl text-slate-600 font-bold mb-2">📅</p>
+          <p className="text-xl text-slate-600">This date game is not ready yet</p>
+          <p className="text-slate-500 mt-2">Choose another date</p>
+        </div>
+      )}
     </div>
   );
 }
