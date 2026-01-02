@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HashRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import './App.css';
@@ -27,12 +27,12 @@ export default function App() {
   }, []);
 
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<GamePage />} />
         <Route path="/:date" element={<GamePage />} />
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
@@ -46,17 +46,14 @@ function GamePage() {
   const [loading, setLoading] = useState(true);
   const [hasPlayed, setHasPlayed] = useState(false);
 
-  // URL parametresi değiştiğinde
   useEffect(() => {
     if (dateParam && dateParam !== date) {
       setDate(dateParam);
-      // Yeni tarihe ait hasPlayed durumunu kontrol et
       const played = !!localStorage.getItem(`mirsad_played_${dateParam}`);
       setHasPlayed(played);
     }
   }, [dateParam]);
 
-  // Tarih değiştiğinde veri yükle
   useEffect(() => {
     loadData();
   }, [date]);
@@ -100,10 +97,9 @@ function GamePage() {
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
-    // Yeni tarihe ait hasPlayed durumunu kontrol et
     const played = !!localStorage.getItem(`mirsad_played_${newDate}`);
     setHasPlayed(played);
-    navigate(`/#/${newDate}`);
+    navigate(`/${newDate}`);
   };
 
   const handlePrevDate = () => {
