@@ -270,11 +270,12 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const showImageKey = `showImage_${date}`;
   const playedKey = `mirsad_played_${date}`;
 
-  // Tarih değiştiğinde state'i localStorage'dan yükle
+  // Tarih değiştiğinde TÜZEL state'i yükle ve sıfırla
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
 
+    // Eğer bu güne ait data varsa yükle, yoksa sıfırla
     if (savedGameState) {
       const state = JSON.parse(savedGameState);
       setGuesses(state.guesses || []);
@@ -286,12 +287,14 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       setGameLost(false);
     }
 
+    // Silüet durumu kontrol et
     if (savedShowImage === 'true') {
       setShowImage(true);
     } else {
       setShowImage(false);
     }
 
+    // Streak hesapla
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
     setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
@@ -312,7 +315,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       }
     }
     setStreak(currentStreak);
-  }, [date, gameStateKey, showImageKey]);
+  }, [date]); // SADECE date değiştiğinde tetikle
 
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
