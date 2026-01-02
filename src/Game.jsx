@@ -256,7 +256,6 @@ const countryEmojis = {
   'Zimbabwe': '🇿🇼',
   'Turkiye': '🇹🇷'
 };
-ENDEMOJI
 
 export default function Game({ player, players, date, isToday, hasPlayed }) {
   const [guesses, setGuesses] = useState([]);
