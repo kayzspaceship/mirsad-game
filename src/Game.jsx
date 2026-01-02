@@ -270,7 +270,10 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const showImageKey = `showImage_${date}`;
   const playedKey = `mirsad_played_${date}`;
 
+  // Tarih değiştiğinde HER ŞEYİ SIFIRLA
   useEffect(() => {
+    console.log('Date changed to:', date);
+    
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
 
@@ -285,11 +288,8 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       setGameLost(false);
     }
 
-    if (savedShowImage === 'true') {
-      setShowImage(true);
-    } else {
-      setShowImage(false);
-    }
+    // AÇIKÇA kontrol et: bu tarihe ait showImage kaydı varsa onu kullan, yoksa false
+    setShowImage(savedShowImage === 'true');
 
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
@@ -311,7 +311,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       }
     }
     setStreak(currentStreak);
-  }, [date]);
+  }, [date, gameStateKey, showImageKey]); // date değiştiğinde yeniden çalış
 
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
@@ -323,9 +323,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   }, [showImage, showImageKey]);
 
   const makeGuess = (selectedPlayer) => {
-    // Bugün ise ve oynadıysa, durdurul
     if (isToday && hasPlayed) return;
-    // Oyun bittiyse durdurul
     if (gameWon || gameLost) return;
 
     const newGuess = {
@@ -363,7 +361,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   };
 
   const handleSearch = (value) => {
-    // Bugün ve oynadıysa ara
     if (isToday && hasPlayed) return;
     setCurrentGuess(value);
     if (value.length < 2) {
