@@ -50,10 +50,14 @@ function GamePage() {
   useEffect(() => {
     if (dateParam && dateParam !== date) {
       setDate(dateParam);
-      const played = !!localStorage.getItem(`mirsad_played_${dateParam}`);
-      setHasPlayed(played);
+      checkHasPlayed(dateParam);
     }
   }, [dateParam, date]);
+
+  const checkHasPlayed = (checkDate) => {
+    const played = !!localStorage.getItem(`mirsad_played_${checkDate}`);
+    setHasPlayed(played);
+  };
 
   useEffect(() => {
     loadData();
@@ -88,6 +92,9 @@ function GamePage() {
         id: parseInt(doc.id),
         ...doc.data() 
       })));
+
+      // Veri yüklenince hasPlayed'i kontrol et
+      checkHasPlayed(date);
 
       setLoading(false);
     } catch (error) {
@@ -125,7 +132,7 @@ function GamePage() {
         <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
         <button onClick={handleNextDate} disabled={date >= today}>Next →</button>
       </div>
-      {player && <Game player={player} players={players} date={date} isToday={date === today} hasPlayed={hasPlayed} />}
+      {player && <Game player={player} players={players} date={date} isToday={date === today} hasPlayed={hasPlayed} onGameComplete={() => checkHasPlayed(date)} />}
       {!player && (
         <div className="text-center py-20">
           <p className="text-2xl text-slate-600 font-bold mb-2">📅</p>

@@ -256,7 +256,7 @@ const countryEmojis = {
   'Turkiye': '🇹🇷'
 };
 
-export default function Game({ player, players, date, isToday, hasPlayed }) {
+export default function Game({ player, players, date, isToday, hasPlayed, onGameComplete }) {
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameWon, setGameWon] = useState(false);
@@ -270,10 +270,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const showImageKey = `showImage_${date}`;
   const playedKey = `mirsad_played_${date}`;
 
-  // Tarih değiştiğinde HER ŞEYİ SIFIRLA
   useEffect(() => {
-    console.log('Date changed to:', date);
-    
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
 
@@ -288,7 +285,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       setGameLost(false);
     }
 
-    // AÇIKÇA kontrol et: bu tarihe ait showImage kaydı varsa onu kullan, yoksa false
     setShowImage(savedShowImage === 'true');
 
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
@@ -311,7 +307,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       }
     }
     setStreak(currentStreak);
-  }, [date, gameStateKey, showImageKey]); // date değiştiğinde yeniden çalış
+  }, [date]);
 
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
@@ -351,11 +347,13 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
       if (isToday) {
         localStorage.setItem(playedKey, 'true');
+        onGameComplete && onGameComplete();
       }
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
       if (isToday) {
         localStorage.setItem(playedKey, 'true');
+        onGameComplete && onGameComplete();
       }
     }
   };
