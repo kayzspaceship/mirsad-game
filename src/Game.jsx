@@ -44,7 +44,6 @@ const countryEmojis = {
   'Cocos (Keeling) Islands': '🇨🇨',
   'Congo': '🇨🇩',
   'Central African Republic': '🇨🇫',
-  'Congo': '🇨🇬',
   'Switzerland': '🇨🇭',
   'Côte D\'Ivoire': '🇨🇮',
   'Cook Islands': '🇨🇰',
@@ -271,6 +270,7 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   const showImageKey = `showImage_${date}`;
   const playedKey = `mirsad_played_${date}`;
 
+  // Tarih değiştiğinde state'i localStorage'dan yükle
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
@@ -292,7 +292,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
       setShowImage(false);
     }
 
-    // Streak hesapla
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
     setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
@@ -384,7 +383,6 @@ export default function Game({ player, players, date, isToday, hasPlayed }) {
   return (
     <div className="min-h-screen bg-white py-8">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Sidebar - History & Streak */}
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 hidden lg:block">
           <div className="bg-slate-100 border-2 border-slate-900 rounded-r-lg p-3 space-y-3 max-h-80 overflow-y-auto">
             <div className="text-center border-b-2 border-slate-900 pb-2">
