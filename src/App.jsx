@@ -46,14 +46,17 @@ function GamePage() {
   const [loading, setLoading] = useState(true);
   const [hasPlayed, setHasPlayed] = useState(false);
 
+  // URL parametresi değiştiğinde
   useEffect(() => {
     if (dateParam && dateParam !== date) {
       setDate(dateParam);
-      const played = localStorage.getItem(`mirsad_played_${dateParam}`);
-      setHasPlayed(!!played);
+      // Yeni tarihe ait hasPlayed durumunu kontrol et
+      const played = !!localStorage.getItem(`mirsad_played_${dateParam}`);
+      setHasPlayed(played);
     }
   }, [dateParam]);
 
+  // Tarih değiştiğinde veri yükle
   useEffect(() => {
     loadData();
   }, [date]);
@@ -97,8 +100,9 @@ function GamePage() {
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
-    const played = localStorage.getItem(`mirsad_played_${newDate}`);
-    setHasPlayed(!!played);
+    // Yeni tarihe ait hasPlayed durumunu kontrol et
+    const played = !!localStorage.getItem(`mirsad_played_${newDate}`);
+    setHasPlayed(played);
     navigate(`/#/${newDate}`);
   };
 
