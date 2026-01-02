@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
+import { BrowserRouter as HashRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import './App.css';
@@ -27,12 +27,12 @@ export default function App() {
   }, []);
 
   return (
-    <Router>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<GamePage />} />
         <Route path="/:date" element={<GamePage />} />
       </Routes>
-    </Router>
+    </HashRouter>
   );
 }
 
@@ -46,7 +46,6 @@ function GamePage() {
   const [loading, setLoading] = useState(true);
   const [hasPlayed, setHasPlayed] = useState(false);
 
-  // URL parametresi değiştiğinde state'i güncelle
   useEffect(() => {
     if (dateParam) {
       setDate(dateParam);
@@ -101,7 +100,8 @@ function GamePage() {
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
-    navigate(`/${newDate}`);
+    setHasPlayed(!!localStorage.getItem(`mirsad_played_${newDate}`));
+    navigate(`/#/${newDate}`);
   };
 
   const handlePrevDate = () => {
