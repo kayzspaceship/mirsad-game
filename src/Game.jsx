@@ -26,8 +26,8 @@ export default function Game({ player, players, date }) {
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
 
-  const gameStateKey = `gameState_${date}`;
-  const showImageKey = `showImage_${date}`;
+  const gameStateKey = 'gameState_' + date;
+  const showImageKey = 'showImage_' + date;
 
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
@@ -46,7 +46,6 @@ export default function Game({ player, players, date }) {
 
     setShowImage(savedShowImage === 'true');
 
-    // TÜM skorları yükle, sadece son 7 değil
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse();
     setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
@@ -125,7 +124,6 @@ export default function Game({ player, players, date }) {
   const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
   const getCellColor = (isCorrect, isClose = false) => (isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500');
 
-  // Sadece kazandıysa foto açılsın
   const photoStyle = gameWon ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
 
   return (
@@ -214,7 +212,7 @@ export default function Game({ player, players, date }) {
 
             {(gameWon || gameLost) && (
               <div className={`p-4 rounded mb-6 text-center border-2 font-bold ${gameWon ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
-                {gameWon ? `🎉 Correct! ${player.name}` : `😢 Game Over! ${player.name}`}
+                {gameWon ? '🎉 Correct! ' + player.name : '😢 Game Over! ' + player.name}
               </div>
             )}
 
