@@ -48,7 +48,7 @@ function HomePage() {
         <p className="text-slate-400 mb-12 text-lg">Guess the player in 8 tries!</p>
         
         <button
-          onClick={() => navigate(`/${today}`)}
+          onClick={() => navigate('/' + today)}
           className="px-8 py-4 bg-red-500 hover:bg-red-600 text-white font-black text-xl rounded-lg transition mb-8"
         >
           START TODAY'S GAME 🚀
@@ -77,19 +77,12 @@ function GamePage() {
   const [player, setPlayer] = useState(null);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hasPlayed, setHasPlayed] = useState(false);
 
   useEffect(() => {
     if (dateParam && dateParam !== date) {
       setDate(dateParam);
-      checkHasPlayed(dateParam);
     }
   }, [dateParam, date]);
-
-  const checkHasPlayed = (checkDate) => {
-    const played = !!localStorage.getItem(`mirsad_played_${checkDate}`);
-    setHasPlayed(played);
-  };
 
   useEffect(() => {
     loadData();
@@ -125,8 +118,6 @@ function GamePage() {
         ...doc.data() 
       })));
 
-      checkHasPlayed(date);
-
       setLoading(false);
     } catch (error) {
       console.error('Error:', error);
@@ -135,7 +126,7 @@ function GamePage() {
   };
 
   const handleDateChange = (newDate) => {
-    navigate(`/${newDate}`);
+    navigate('/' + newDate);
   };
 
   const handlePrevDate = () => {
@@ -156,9 +147,6 @@ function GamePage() {
     navigate('/');
   };
 
-  // İŞ GÜNÜ DOĞRU KONTROL ET
-  const isToday = date === today;
-
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -175,7 +163,7 @@ function GamePage() {
         
         <button onClick={handleNextDate} disabled={date >= today} className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600 font-bold disabled:opacity-50">Next →</button>
       </div>
-      {player && <Game player={player} players={players} date={date} />
+      {player && <Game player={player} players={players} date={date} />}
       {!player && (
         <div className="text-center py-20">
           <p className="text-2xl text-slate-600 font-bold mb-2">📅</p>
