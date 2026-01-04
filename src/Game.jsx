@@ -29,7 +29,7 @@ export default function Game({ player, players, date }) {
   const gameStateKey = `gameState_${date}`;
   const showImageKey = `showImage_${date}`;
 
-  // Mount olduğunda ve date değiştiğinde localStorage'dan yükle
+  // Date değiştiğinde localStorage'dan yükle
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
@@ -47,7 +47,6 @@ export default function Game({ player, players, date }) {
 
     setShowImage(savedShowImage === 'true');
 
-    // Streak hesapla
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
     setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
@@ -68,9 +67,8 @@ export default function Game({ player, players, date }) {
       }
     }
     setStreak(currentStreak);
-  }, [date, gameStateKey, showImageKey]);
+  }, [date]);
 
-  // State değiştiğinde localStorage'a kaydet
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
@@ -127,7 +125,6 @@ export default function Game({ player, players, date }) {
   const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
   const getCellColor = (isCorrect, isClose = false) => (isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500');
 
-  // Foto sadece kazandıysa aç
   const photoStyle = gameWon ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
 
   return (
