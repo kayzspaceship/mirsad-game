@@ -175,7 +175,7 @@ function GamePage() {
         
         <button onClick={handleNextDate} disabled={date >= today} className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600 font-bold disabled:opacity-50">Next →</button>
       </div>
-      {player && <Game player={player} players={players} date={date} isToday={isToday} hasPlayed={hasPlayed} onGameComplete={() => checkHasPlayed(date)} />}
+      {player && <Game player={player} players={players} date={date} />
       {!player && (
         <div className="text-center py-20">
           <p className="text-2xl text-slate-600 font-bold mb-2">📅</p>

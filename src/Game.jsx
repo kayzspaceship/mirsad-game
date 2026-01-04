@@ -16,7 +16,7 @@ const countryEmojis = {
   'United States': '🇺🇸', 'United States of America': '🇺🇸'
 };
 
-export default function Game({ player, players, date, isToday, hasPlayed, onGameComplete }) {
+export default function Game({ player, players, date }) {
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameWon, setGameWon] = useState(false);
@@ -29,7 +29,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
   const gameStateKey = `gameState_${date}`;
   const showImageKey = `showImage_${date}`;
 
-  // Tarih değiştiğinde localStorage'dan yükle
+  // Mount olduğunda ve date değiştiğinde localStorage'dan yükle
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
@@ -47,6 +47,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
 
     setShowImage(savedShowImage === 'true');
 
+    // Streak hesapla
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse().slice(0, 7);
     setRecentScores(dates.map(d => ({ date: d, score: scores[d] })));
@@ -69,6 +70,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
     setStreak(currentStreak);
   }, [date, gameStateKey, showImageKey]);
 
+  // State değiştiğinde localStorage'a kaydet
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
@@ -104,7 +106,6 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
       const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
       scores[date] = newGuesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
-      onGameComplete && onGameComplete();
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
     }
@@ -126,8 +127,8 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
   const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
   const getCellColor = (isCorrect, isClose = false) => (isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500');
 
-  // SADECE kazandıysa foto açılsın
-  const photoStyle = (gameWon || showImage) ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
+  // Foto sadece kazandıysa aç
+  const photoStyle = gameWon ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
 
   return (
     <div className="min-h-screen bg-white py-8">
@@ -234,7 +235,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
               </div>
               <div className="bg-slate-100 rounded p-2 text-center border-2 border-slate-900">
                 <p className="text-xs font-bold">Image</p>
-                <p className="text-lg font-black">{showImage ? '👁' : '🔒'}</p>
+                <p className="text-lg font-black">{gameWon ? '👁' : '🔒'}</p>
               </div>
             </div>
           </div>
