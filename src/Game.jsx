@@ -375,7 +375,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
   const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
   const getCellColor = (isCorrect, isClose = false) => (isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500');
 
-  const photoStyle = (gameWon || gameLost || showImage) ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
+  const photoStyle = (gameWon || gameLost || showImage || isToday) ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
 
   return (
     <div className="min-h-screen bg-white py-8">

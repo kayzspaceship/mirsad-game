@@ -79,7 +79,6 @@ function GamePage() {
   const [loading, setLoading] = useState(true);
   const [hasPlayed, setHasPlayed] = useState(false);
 
-  // URL parametresi değiştiğinde
   useEffect(() => {
     if (dateParam && dateParam !== date) {
       setDate(dateParam);
@@ -163,11 +162,15 @@ function GamePage() {
 
   return (
     <div className="app">
-      <div className="date-navigation">
-        <button onClick={handleHome} className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600">🏠 Home</button>
-        <button onClick={handlePrevDate}>← Prev</button>
-        <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-        <button onClick={handleNextDate} disabled={date >= today}>Next →</button>
+      <div className="date-navigation flex items-center justify-between px-4 py-3">
+        <button onClick={handlePrevDate} className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600 font-bold">← Prev</button>
+        
+        <div className="flex-1 flex flex-col items-center">
+          <span className="text-lg font-bold text-slate-900">{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+          <button onClick={handleHome} className="mt-1 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded font-bold text-sm">🏠 HOME</button>
+        </div>
+        
+        <button onClick={handleNextDate} disabled={date >= today} className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600 font-bold disabled:opacity-50">Next →</button>
       </div>
       {player && <Game player={player} players={players} date={date} isToday={date === today} hasPlayed={hasPlayed} onGameComplete={() => checkHasPlayed(date)} />}
       {!player && (
