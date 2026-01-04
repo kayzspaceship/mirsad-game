@@ -82,7 +82,7 @@ function GamePage() {
     if (dateParam && dateParam !== date) {
       setDate(dateParam);
     }
-  }, [dateParam, date]);
+  }, [dateParam]);
 
   useEffect(() => {
     loadData();
@@ -125,21 +125,19 @@ function GamePage() {
     }
   };
 
-  const handleDateChange = (newDate) => {
-    navigate('/' + newDate);
-  };
-
   const handlePrevDate = () => {
-    const prevDate = new Date(new Date(date + 'T00:00:00').getTime() - 86400000);
+    const currentDate = new Date(date + 'T00:00:00');
+    const prevDate = new Date(currentDate.getTime() - 86400000);
     const prevDateStr = prevDate.toLocaleDateString('en-CA');
-    handleDateChange(prevDateStr);
+    navigate('/' + prevDateStr);
   };
 
   const handleNextDate = () => {
-    const nextDate = new Date(new Date(date + 'T00:00:00').getTime() + 86400000);
+    const currentDate = new Date(date + 'T00:00:00');
+    const nextDate = new Date(currentDate.getTime() + 86400000);
     const nextDateStr = nextDate.toLocaleDateString('en-CA');
     if (nextDateStr <= today) {
-      handleDateChange(nextDateStr);
+      navigate('/' + nextDateStr);
     }
   };
 
