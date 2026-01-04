@@ -17,9 +17,6 @@ const countryEmojis = {
 };
 
 export default function Game({ player, players, date }) {
-  const gameStateKey = 'gameState_' + date;
-  const showImageKey = 'showImage_' + date;
-
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameWon, setGameWon] = useState(false);
@@ -29,7 +26,11 @@ export default function Game({ player, players, date }) {
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
 
+  // Load data on mount and when date changes
   useEffect(() => {
+    const gameStateKey = 'gameState_' + date;
+    const showImageKey = 'showImage_' + date;
+
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
 
@@ -66,16 +67,20 @@ export default function Game({ player, players, date }) {
       }
     }
     setStreak(currentStreak);
-  }, [date, gameStateKey, showImageKey]);
+  }, [date]);
 
+  // Save guesses
   useEffect(() => {
+    const gameStateKey = 'gameState_' + date;
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
-  }, [guesses, gameWon, gameLost, gameStateKey]);
+  }, [guesses, gameWon, gameLost, date]);
 
+  // Save showImage
   useEffect(() => {
+    const showImageKey = 'showImage_' + date;
     localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
-  }, [showImage, showImageKey]);
+  }, [showImage, date]);
 
   const makeGuess = (selectedPlayer) => {
     if (gameWon || gameLost) return;
