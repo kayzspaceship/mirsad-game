@@ -17,6 +17,9 @@ const countryEmojis = {
 };
 
 export default function Game({ player, players, date }) {
+  const gameStateKey = 'gameState_' + date;
+  const showImageKey = 'showImage_' + date;
+
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameWon, setGameWon] = useState(false);
@@ -25,9 +28,6 @@ export default function Game({ player, players, date }) {
   const [showImage, setShowImage] = useState(false);
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
-
-  const gameStateKey = 'gameState_' + date;
-  const showImageKey = 'showImage_' + date;
 
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
@@ -66,7 +66,7 @@ export default function Game({ player, players, date }) {
       }
     }
     setStreak(currentStreak);
-  }, [date]);
+  }, [date, gameStateKey, showImageKey]);
 
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
