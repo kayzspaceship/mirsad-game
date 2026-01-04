@@ -29,10 +29,43 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<GamePage />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/:date" element={<GamePage />} />
       </Routes>
     </BrowserRouter>
+  );
+}
+
+function HomePage() {
+  const navigate = useNavigate();
+  const today = new Date().toLocaleDateString('en-CA');
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center py-8">
+      <div className="max-w-2xl w-full mx-auto px-4 text-center">
+        <h1 className="text-6xl font-black text-white mb-4">🏀 MIRSAD</h1>
+        <p className="text-xl text-slate-300 mb-8">Euroleague Player Guessing Game</p>
+        <p className="text-slate-400 mb-12 text-lg">Guess the player in 8 tries!</p>
+        
+        <button
+          onClick={() => navigate(`/${today}`)}
+          className="px-8 py-4 bg-red-500 hover:bg-red-600 text-white font-black text-xl rounded-lg transition mb-8"
+        >
+          START TODAY'S GAME 🚀
+        </button>
+
+        <div className="bg-slate-700 border-2 border-slate-600 rounded-lg p-6 mt-8">
+          <h2 className="text-white font-black text-lg mb-4">How to Play:</h2>
+          <ul className="text-slate-300 space-y-2 text-left">
+            <li>✓ You have 8 guesses</li>
+            <li>✓ Green = Correct value</li>
+            <li>✓ Yellow = Close (±3 age/height, ±1 jersey)</li>
+            <li>✓ Red = Wrong</li>
+            <li>✓ Arrows show direction (↑ higher, ↓ lower)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -93,7 +126,6 @@ function GamePage() {
         ...doc.data() 
       })));
 
-      // Veri yüklenince hasPlayed'i kontrol et
       checkHasPlayed(date);
 
       setLoading(false);
@@ -121,6 +153,10 @@ function GamePage() {
     }
   };
 
+  const handleHome = () => {
+    navigate('/');
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -128,6 +164,7 @@ function GamePage() {
   return (
     <div className="app">
       <div className="date-navigation">
+        <button onClick={handleHome} className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600">🏠 Home</button>
         <button onClick={handlePrevDate}>← Prev</button>
         <span>{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
         <button onClick={handleNextDate} disabled={date >= today}>Next →</button>
