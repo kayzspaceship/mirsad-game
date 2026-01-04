@@ -28,8 +28,8 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
 
   const gameStateKey = `gameState_${date}`;
   const showImageKey = `showImage_${date}`;
-  const playedKey = `mirsad_played_${date}`;
 
+  // Tarih değiştiğinde localStorage'dan yükle
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
@@ -79,7 +79,6 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
   }, [showImage, showImageKey]);
 
   const makeGuess = (selectedPlayer) => {
-    if (isToday && hasPlayed) return;
     if (gameWon || gameLost) return;
 
     const newGuess = {
@@ -105,21 +104,13 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
       const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
       scores[date] = newGuesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
-      if (isToday) {
-        localStorage.setItem(playedKey, 'true');
-        onGameComplete && onGameComplete();
-      }
+      onGameComplete && onGameComplete();
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameLost(true);
-      if (isToday) {
-        localStorage.setItem(playedKey, 'true');
-        onGameComplete && onGameComplete();
-      }
     }
   };
 
   const handleSearch = (value) => {
-    if (isToday && hasPlayed) return;
     setCurrentGuess(value);
     if (value.length < 2) {
       setSearchResults([]);
@@ -135,11 +126,8 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
   const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
   const getCellColor = (isCorrect, isClose = false) => (isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500');
 
-  // FotoNun açılma logic'i
-  // Bugün ise HABER açı
-  // Geçmiş gün ise SADECE oynadıysan ve kazandıysan aç
-  const shouldShowImage = isToday || (gameWon) || showImage;
-  const photoStyle = shouldShowImage ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
+  // SADECE kazandıysa foto açılsın
+  const photoStyle = (gameWon || showImage) ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
 
   return (
     <div className="min-h-screen bg-white py-8">
@@ -176,10 +164,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
               <img src={player.imageUrl} alt="Player" style={{ width: '200px', height: '280px', objectFit: 'cover', ...photoStyle, borderRadius: '12px', border: '4px solid #1e293b', transition: 'all 0.5s' }} />
             </div>
 
-            {!isToday && <div className="mb-6 p-4 bg-slate-200 rounded text-center text-slate-900 font-bold">📅 Past Game - View Only</div>}
-            {isToday && hasPlayed && <div className="mb-6 p-4 bg-yellow-100 rounded text-center text-yellow-900 font-bold">😊 Already played today!</div>}
-
-            {(!isToday || !hasPlayed) && !gameWon && !gameLost && (
+            {!gameWon && !gameLost && (
               <div className="mb-6">
                 <input type="text" value={currentGuess} onChange={(e) => handleSearch(e.target.value)} placeholder="Type player name..." className="w-full px-4 py-3 border-2 border-slate-900 rounded text-slate-900" />
                 {searchResults.length > 0 && (
