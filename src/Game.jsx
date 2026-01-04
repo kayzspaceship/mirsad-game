@@ -270,6 +270,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
   const showImageKey = `showImage_${date}`;
   const playedKey = `mirsad_played_${date}`;
 
+  // Tarih değiştiğinde LOCAL STORAGE'dan yükle
   useEffect(() => {
     const savedGameState = localStorage.getItem(gameStateKey);
     const savedShowImage = localStorage.getItem(showImageKey);
@@ -307,7 +308,7 @@ export default function Game({ player, players, date, isToday, hasPlayed, onGame
       }
     }
     setStreak(currentStreak);
-  }, [date]);
+  }, [date, gameStateKey, showImageKey]); // date değiştiğinde TÜM BUNLARI YENİDEN ÇALIŞT
 
   useEffect(() => {
     const state = { guesses, gameWon, gameLost };
