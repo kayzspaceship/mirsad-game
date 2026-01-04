@@ -26,7 +26,7 @@ export default function Game({ player, players, date }) {
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
 
-  // Load data on mount and when date changes
+  // Load on mount and when date changes
   useEffect(() => {
     const gameStateKey = 'gameState_' + date;
     const showImageKey = 'showImage_' + date;
@@ -53,11 +53,11 @@ export default function Game({ player, players, date }) {
     
     let currentStreak = 0;
     const allDates = Object.keys(scores).sort().reverse();
-    const today = new Date();
+    const todayDate = new Date();
     
     for (let i = 0; i < allDates.length; i++) {
       const gameDate = new Date(allDates[i] + 'T00:00:00');
-      const expectedDate = new Date(today);
+      const expectedDate = new Date(todayDate);
       expectedDate.setDate(expectedDate.getDate() - i);
       
       if (gameDate.toLocaleDateString('en-CA') === expectedDate.toLocaleDateString('en-CA') && scores[allDates[i]] < MAX_GUESSES) {
@@ -69,14 +69,14 @@ export default function Game({ player, players, date }) {
     setStreak(currentStreak);
   }, [date]);
 
-  // Save guesses
+  // Save guesses when they change
   useEffect(() => {
     const gameStateKey = 'gameState_' + date;
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
   }, [guesses, gameWon, gameLost, date]);
 
-  // Save showImage
+  // Save showImage when it changes
   useEffect(() => {
     const showImageKey = 'showImage_' + date;
     localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
