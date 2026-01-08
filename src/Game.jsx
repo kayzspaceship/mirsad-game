@@ -17,6 +17,7 @@ const countryEmojis = {
 };
 
 export default function Game({ player, players, date }) {
+  console.log('Game date prop:', date);
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameWon, setGameWon] = useState(false);
