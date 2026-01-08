@@ -23,6 +23,7 @@ export default function Game({ player, players, date }) {
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
 
+  // Load state when date changes
   useEffect(() => {
     const key = 'gameState_' + date;
     const saved = localStorage.getItem(key);
@@ -52,9 +53,10 @@ export default function Game({ player, players, date }) {
     setStreak(currentStreak);
   }, [date]);
 
+  // Save state when it changes
   useEffect(() => {
     const key = 'gameState_' + date;
-  }, [state, date]);
+    localStorage.setItem(key, JSON.stringify(state));
   }, [state, date]);
 
   const makeGuess = (selectedPlayer) => {
