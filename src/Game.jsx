@@ -28,6 +28,7 @@ export default function Game({ player, players, date }) {
   const [recentScores, setRecentScores] = useState([]);
 
   useEffect(() => {
+    console.log('Game useEffect - date:', date);
     const gameStateKey = 'gameState_' + date;
     const showImageKey = 'showImage_' + date;
 
@@ -72,12 +73,14 @@ export default function Game({ player, players, date }) {
   }, [date]);
 
   useEffect(() => {
+    console.log('Game useEffect - date:', date);
     const gameStateKey = 'gameState_' + date;
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
   }, [guesses, gameWon, gameLost, date]);
 
   useEffect(() => {
+    console.log('Game useEffect - date:', date);
     const showImageKey = 'showImage_' + date;
     localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
   }, [showImage, date]);
