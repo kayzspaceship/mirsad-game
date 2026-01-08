@@ -124,17 +124,15 @@ function GamePage() {
   };
 
   const handlePrevDate = () => {
-    const d = new Date(date + "T00:00:00");
+    const d = new Date(date + 'T00:00:00');
     const prev = new Date(d.getTime() - 86400000);
-    // subtract 1 day
-    navigate("/" + prev.toLocaleDateString('en-CA'));
+    navigate('/' + prev.toLocaleDateString('en-CA'));
   };
 
   const handleNextDate = () => {
-    const d = new Date(date + "T00:00:00");
-    const prev = new Date(d.getTime() - 86400000);
-    d.setDate(d.getDate() + 1);
-    const nextStr = d.toLocaleDateString('en-CA');
+    const d = new Date(date + 'T00:00:00');
+    const next = new Date(d.getTime() + 86400000);
+    const nextStr = next.toLocaleDateString('en-CA');
     if (nextStr <= today) {
       navigate('/' + nextStr);
     }
