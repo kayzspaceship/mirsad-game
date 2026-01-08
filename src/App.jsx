@@ -126,13 +126,13 @@ function GamePage() {
   };
 
   const handlePrevDate = () => {
-    const d = new Date(date);
+    const d = new Date(date + "T00:00:00");
     d.setDate(d.getDate() - 1);
     navigate('/' + d.toLocaleDateString('en-CA'));
   };
 
   const handleNextDate = () => {
-    const d = new Date(date);
+    const d = new Date(date + "T00:00:00");
     d.setDate(d.getDate() + 1);
     const nextStr = d.toLocaleDateString('en-CA');
     if (nextStr <= today) {
