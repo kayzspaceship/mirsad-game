@@ -10,6 +10,7 @@ const countryEmojis = {
   'Slovenia': '🇸🇮', 'Montenegro': '🇲🇪', 'Bosnia and Herzegovina': '🇧🇦',
   'North Macedonia': '🇲🇰', 'Albania': '🇦🇱', 'Slovakia': '🇸🇰', 'Belgium': '🇧🇪',
   'Netherlands': '🇳🇱', 'Portugal': '🇵🇹', 'United Kingdom': '🇬🇧', 'Canada': '🇨🇦',
+  const [prevPlayer, setPrevPlayer] = useState(null);
   'Australia': '🇦🇺', 'New Zealand': '🇳🇿', 'Japan': '🇯🇵', 'China': '🇨🇳',
   'South Korea': '🇰🇷', 'Brazil': '🇧🇷', 'Argentina': '🇦🇷', 'Mexico': '🇲🇽',
   'Senegal': '🇸🇳', 'Nigeria': '🇳🇬', 'Egypt': '🇪🇬', 'Turkiye': '🇹🇷',
@@ -24,6 +25,14 @@ export default function Game({ player, players, date }) {
   const [recentScores, setRecentScores] = useState([]);
 
   useEffect(() => {
+  useEffect(() => {
+    if (prevPlayer !== player.id) {
+      setPrevPlayer(player.id);
+      const key = "gameState_" + date;
+      const saved = localStorage.getItem(key);
+      setState(saved ? JSON.parse(saved) : { guesses: [], gameWon: false, gameLost: false, showImage: false });
+    }
+  }, [player.id]);
     const key = 'gameState_' + date;
     const saved = localStorage.getItem(key);
     setState(saved ? JSON.parse(saved) : { guesses: [], gameWon: false, gameLost: false, showImage: false });
