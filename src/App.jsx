@@ -79,7 +79,9 @@ function GamePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setDate(dateParam || today);
+    if (dateParam) {
+      setDate(dateParam);
+    }
   }, [dateParam]);
 
   useEffect(() => {
@@ -124,18 +126,17 @@ function GamePage() {
   };
 
   const handlePrevDate = () => {
-    const currentDate = new Date(date + 'T00:00:00');
-    const prevDate = new Date(currentDate.getTime() - 86400000);
-    const prevDateStr = prevDate.toLocaleDateString('en-CA');
-    navigate('/' + prevDateStr);
+    const d = new Date(date);
+    d.setDate(d.getDate() - 1);
+    navigate('/' + d.toLocaleDateString('en-CA'));
   };
 
   const handleNextDate = () => {
-    const currentDate = new Date(date + 'T00:00:00');
-    const nextDate = new Date(currentDate.getTime() + 86400000);
-    const nextDateStr = nextDate.toLocaleDateString('en-CA');
-    if (nextDateStr <= today) {
-      navigate('/' + nextDateStr);
+    const d = new Date(date);
+    d.setDate(d.getDate() + 1);
+    const nextStr = d.toLocaleDateString('en-CA');
+    if (nextStr <= today) {
+      navigate('/' + nextStr);
     }
   };
 
