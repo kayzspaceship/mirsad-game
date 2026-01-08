@@ -17,59 +17,21 @@ const countryEmojis = {
 };
 
 export default function Game({ player, players, date }) {
-  const [guesses, setGuesses] = useState([]);
-  const [currentGuess, setCurrentGuess] = useState('');
-  const [gameWon, setGameWon] = useState(false);
-  const [gameLost, setGameLost] = useState(false);
+  const [state, setState] = useState(() => {
+    const key = 'gameState_' + date;
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : { guesses: [], gameWon: false, gameLost: false, showImage: false };
+  });
+
   const [searchResults, setSearchResults] = useState([]);
-  const [showImage, setShowImage] = useState(false);
+  const [currentGuess, setCurrentGuess] = useState('');
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
-  const [lastDate, setLastDate] = useState(date);
 
   useEffect(() => {
-    if (lastDate !== date) {
-      setLastDate(date);
-      const gameStateKey = 'gameState_' + date;
-      const showImageKey = 'showImage_' + date;
-
-      const savedGameState = localStorage.getItem(gameStateKey);
-      const savedShowImage = localStorage.getItem(showImageKey);
-
-      if (savedGameState) {
-        const state = JSON.parse(savedGameState);
-        setGuesses(state.guesses || []);
-        setGameWon(state.gameWon || false);
-        setGameLost(state.gameLost || false);
-      } else {
-        setGuesses([]);
-        setGameWon(false);
-        setGameLost(false);
-      }
-
-      setShowImage(savedShowImage === 'true');
-      setCurrentGuess('');
-      setSearchResults([]);
-    }
-
-    const gameStateKey = 'gameState_' + date;
-    const showImageKey = 'showImage_' + date;
-
-    const savedGameState = localStorage.getItem(gameStateKey);
-    const savedShowImage = localStorage.getItem(showImageKey);
-
-    if (savedGameState) {
-      const state = JSON.parse(savedGameState);
-      setGuesses(state.guesses || []);
-      setGameWon(state.gameWon || false);
-      setGameLost(state.gameLost || false);
-    } else {
-      setGuesses([]);
-      setGameWon(false);
-      setGameLost(false);
-    }
-
-    setShowImage(savedShowImage === 'true');
+    const key = 'gameState_' + date;
+    const saved = localStorage.getItem(key);
+    setState(saved ? JSON.parse(saved) : { guesses: [], gameWon: false, gameLost: false, showImage: false });
 
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse();
@@ -77,11 +39,11 @@ export default function Game({ player, players, date }) {
     
     let currentStreak = 0;
     const allDates = Object.keys(scores).sort().reverse();
-    const todayDate = new Date();
+    const today = new Date();
     
     for (let i = 0; i < allDates.length; i++) {
       const gameDate = new Date(allDates[i] + 'T00:00:00');
-      const expectedDate = new Date(todayDate);
+      const expectedDate = new Date(today);
       expectedDate.setDate(expectedDate.getDate() - i);
       
       if (gameDate.toLocaleDateString('en-CA') === expectedDate.toLocaleDateString('en-CA') && scores[allDates[i]] < MAX_GUESSES) {
@@ -91,21 +53,17 @@ export default function Game({ player, players, date }) {
       }
     }
     setStreak(currentStreak);
-  }, [date, lastDate]);
+    setCurrentGuess('');
+    setSearchResults([]);
+  }, [date]);
 
   useEffect(() => {
-    const gameStateKey = 'gameState_' + date;
-    const state = { guesses, gameWon, gameLost };
-    localStorage.setItem(gameStateKey, JSON.stringify(state));
-  }, [guesses, gameWon, gameLost, date]);
-
-  useEffect(() => {
-    const showImageKey = 'showImage_' + date;
-    localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
-  }, [showImage, date]);
+    const key = 'gameState_' + date;
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [state, date]);
 
   const makeGuess = (selectedPlayer) => {
-    if (gameWon || gameLost) return;
+    if (state.gameWon || state.gameLost) return;
 
     const newGuess = {
       name: selectedPlayer.name,
@@ -119,20 +77,24 @@ export default function Game({ player, players, date }) {
       isCorrect: selectedPlayer.id === player.id,
     };
 
-    const newGuesses = [...guesses, newGuess];
-    setGuesses(newGuesses);
-    setCurrentGuess('');
-    setSearchResults([]);
+    const newGuesses = [...state.guesses, newGuess];
+    let newShowImage = state.showImage;
+    let newGameWon = state.gameWon;
+    let newGameLost = state.gameLost;
 
     if (newGuess.isCorrect) {
-      setGameWon(true);
-      setShowImage(true);
+      newGameWon = true;
+      newShowImage = true;
       const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
       scores[date] = newGuesses.length;
       localStorage.setItem('mirsad_scores', JSON.stringify(scores));
     } else if (newGuesses.length >= MAX_GUESSES) {
-      setGameLost(true);
+      newGameLost = true;
     }
+
+    setState({ guesses: newGuesses, gameWon: newGameWon, gameLost: newGameLost, showImage: newShowImage });
+    setCurrentGuess('');
+    setSearchResults([]);
   };
 
   const handleSearch = (value) => {
@@ -142,7 +104,7 @@ export default function Game({ player, players, date }) {
       return;
     }
     const filtered = players.filter(
-      (p) => p.name.toUpperCase().includes(value.toUpperCase()) && !guesses.some((g) => g.name === p.name)
+      (p) => p.name.toUpperCase().includes(value.toUpperCase()) && !state.guesses.some((g) => g.name === p.name)
     );
     setSearchResults(filtered.slice(0, 8));
   };
@@ -151,7 +113,7 @@ export default function Game({ player, players, date }) {
   const getCountryFlag = (country) => countryEmojis[country] || '🏳️';
   const getCellColor = (isCorrect, isClose = false) => (isCorrect ? 'bg-green-500' : isClose ? 'bg-yellow-400' : 'bg-red-500');
 
-  const photoStyle = (gameWon || gameLost) ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
+  const photoStyle = (state.gameWon || state.gameLost) ? { filter: 'brightness(1) saturate(1)' } : { filter: 'brightness(0)' };
 
   return (
     <div className="min-h-screen bg-white py-8">
@@ -188,9 +150,9 @@ export default function Game({ player, players, date }) {
               <img src={player.imageUrl} alt="Player" style={{ width: '200px', height: '280px', objectFit: 'cover', ...photoStyle, borderRadius: '12px', border: '4px solid #1e293b', transition: 'all 0.5s' }} />
             </div>
 
-            {!gameWon && !gameLost && (
+            {!state.gameWon && !state.gameLost && (
               <div className="mb-6">
-                <input type="text" disabled={gameWon || gameLost} value={currentGuess} onChange={(e) => handleSearch(e.target.value)} placeholder="Type player name..." className="w-full px-4 py-3 border-2 border-slate-900 rounded text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed" />
+                <input type="text" disabled={state.gameWon || state.gameLost} value={currentGuess} onChange={(e) => handleSearch(e.target.value)} placeholder="Type player name..." className="w-full px-4 py-3 border-2 border-slate-900 rounded text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed" />
                 {searchResults.length > 0 && (
                   <div className="mt-2 bg-white border-2 border-slate-900 rounded max-h-60 overflow-y-auto">
                     {searchResults.map((p) => (
@@ -204,7 +166,7 @@ export default function Game({ player, players, date }) {
               </div>
             )}
 
-            {guesses.length > 0 && (
+            {state.guesses.length > 0 && (
               <div className="mb-6 overflow-x-auto border-2 border-slate-900 rounded">
                 <table className="w-full text-xs sm:text-sm">
                   <thead>
@@ -220,7 +182,7 @@ export default function Game({ player, players, date }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {guesses.map((guess, idx) => (
+                    {state.guesses.map((guess, idx) => (
                       <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b'}>
                         <td className="p-2 font-bold text-slate-900">{guess.name} {guess.isCorrect && '✓'}</td>
                         <td className={`p-2 text-center font-bold text-white hidden md:table-cell ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
@@ -237,28 +199,28 @@ export default function Game({ player, players, date }) {
               </div>
             )}
 
-            {(gameWon || gameLost) && (
-              <div className={`p-4 rounded mb-6 text-center border-2 font-bold ${gameWon ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
-                {gameWon ? '🎉 Correct! ' + player.name : '😢 Game Over! ' + player.name}
+            {(state.gameWon || state.gameLost) && (
+              <div className={`p-4 rounded mb-6 text-center border-2 font-bold ${state.gameWon ? 'bg-green-100 border-green-600 text-green-900' : 'bg-red-100 border-red-600 text-red-900'}`}>
+                {state.gameWon ? '🎉 Correct! ' + player.name : '😢 Game Over! ' + player.name}
               </div>
             )}
 
             <div className="grid grid-cols-4 gap-2">
               <div className="bg-slate-100 rounded p-2 text-center border-2 border-slate-900">
                 <p className="text-xs font-bold">Guesses</p>
-                <p className="text-xl font-black">{guesses.length}/8</p>
+                <p className="text-xl font-black">{state.guesses.length}/8</p>
               </div>
               <div className="bg-slate-100 rounded p-2 text-center border-2 border-slate-900">
                 <p className="text-xs font-bold">Left</p>
-                <p className="text-xl font-black">{8 - guesses.length}</p>
+                <p className="text-xl font-black">{8 - state.guesses.length}</p>
               </div>
               <div className="bg-slate-100 rounded p-2 text-center border-2 border-slate-900">
                 <p className="text-xs font-bold">Status</p>
-                <p className="text-lg font-black">{gameWon ? '✓' : gameLost ? '✗' : '▶'}</p>
+                <p className="text-lg font-black">{state.gameWon ? '✓' : state.gameLost ? '✗' : '▶'}</p>
               </div>
               <div className="bg-slate-100 rounded p-2 text-center border-2 border-slate-900">
                 <p className="text-xs font-bold">Image</p>
-                <p className="text-lg font-black">{gameWon ? '👁' : '🔒'}</p>
+                <p className="text-lg font-black">{state.gameWon ? '👁' : '🔒'}</p>
               </div>
             </div>
           </div>
