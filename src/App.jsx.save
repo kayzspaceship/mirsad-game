@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import './App.css';
-import { GameProvider } from './GameContext';import Game from './Game';
+import Game from './Game';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDmLoWcAl0pS3jYar2rZxSdrjKPIZNemNQ",
@@ -77,10 +78,22 @@ function GamePage() {
   const [player, setPlayer] = useState(null);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     setDate(dateParam || today);
   }, [dateParam, today]);
+  useEffect(() => {
+    setDate(dateParam || today);
+  }, [dateParam, today]);
+  useEffect(() => {
+    setDate(dateParam || today);
+  }, [dateParam, today]);
+  useEffect(() => {
+    setDate(dateParam || today);
+  }, [dateParam, today]);
+  useEffect(() => {
+    setDate(dateParam || today);
+  }, [dateParam, today]);
+  }, [dateParam]);
 
   useEffect(() => {
     loadData();
@@ -124,15 +137,15 @@ function GamePage() {
   };
 
   const handlePrevDate = () => {
-    const d = new Date(date + 'T00:00:00');
-    const prev = new Date(d.getTime() - 86400000);
-    navigate('/' + prev.toLocaleDateString('en-CA'));
+    const d = new Date(date + "T00:00:00");
+    d.setDate(d.getDate() - 1);
+    navigate('/' + d.toLocaleDateString('en-CA'));
   };
 
   const handleNextDate = () => {
-    const d = new Date(date + 'T00:00:00');
-    const next = new Date(d.getTime() + 86400000);
-    const nextStr = next.toLocaleDateString('en-CA');
+    const d = new Date(date + "T00:00:00");
+    d.setDate(d.getDate() + 1);
+    const nextStr = d.toLocaleDateString('en-CA');
     if (nextStr <= today) {
       navigate('/' + nextStr);
     }
