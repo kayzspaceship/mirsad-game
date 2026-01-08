@@ -17,12 +17,7 @@ const countryEmojis = {
 };
 
 export default function Game({ player, players, date }) {
-  const [state, setState] = useState(() => {
-    const key = 'gameState_' + date;
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : { guesses: [], gameWon: false, gameLost: false, showImage: false };
-  });
-
+  const [state, setState] = useState({ guesses: [], gameWon: false, gameLost: false, showImage: false });
   const [searchResults, setSearchResults] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [streak, setStreak] = useState(0);
@@ -32,6 +27,8 @@ export default function Game({ player, players, date }) {
     const key = 'gameState_' + date;
     const saved = localStorage.getItem(key);
     setState(saved ? JSON.parse(saved) : { guesses: [], gameWon: false, gameLost: false, showImage: false });
+    setCurrentGuess('');
+    setSearchResults([]);
 
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse();
@@ -53,8 +50,6 @@ export default function Game({ player, players, date }) {
       }
     }
     setStreak(currentStreak);
-    setCurrentGuess('');
-    setSearchResults([]);
   }, [date]);
 
   useEffect(() => {
