@@ -17,7 +17,6 @@ const countryEmojis = {
 };
 
 export default function Game({ player, players, date }) {
-  console.log('Game date prop:', date);
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameWon, setGameWon] = useState(false);
@@ -26,9 +25,33 @@ export default function Game({ player, players, date }) {
   const [showImage, setShowImage] = useState(false);
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
+  const [lastDate, setLastDate] = useState(date);
 
   useEffect(() => {
-    console.log('Game useEffect - date:', date);
+    if (lastDate !== date) {
+      setLastDate(date);
+      const gameStateKey = 'gameState_' + date;
+      const showImageKey = 'showImage_' + date;
+
+      const savedGameState = localStorage.getItem(gameStateKey);
+      const savedShowImage = localStorage.getItem(showImageKey);
+
+      if (savedGameState) {
+        const state = JSON.parse(savedGameState);
+        setGuesses(state.guesses || []);
+        setGameWon(state.gameWon || false);
+        setGameLost(state.gameLost || false);
+      } else {
+        setGuesses([]);
+        setGameWon(false);
+        setGameLost(false);
+      }
+
+      setShowImage(savedShowImage === 'true');
+      setCurrentGuess('');
+      setSearchResults([]);
+    }
+
     const gameStateKey = 'gameState_' + date;
     const showImageKey = 'showImage_' + date;
 
@@ -47,8 +70,6 @@ export default function Game({ player, players, date }) {
     }
 
     setShowImage(savedShowImage === 'true');
-    setCurrentGuess('');
-    setSearchResults([]);
 
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse();
@@ -70,17 +91,15 @@ export default function Game({ player, players, date }) {
       }
     }
     setStreak(currentStreak);
-  }, [date]);
+  }, [date, lastDate]);
 
   useEffect(() => {
-    console.log('Game useEffect - date:', date);
     const gameStateKey = 'gameState_' + date;
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
   }, [guesses, gameWon, gameLost, date]);
 
   useEffect(() => {
-    console.log('Game useEffect - date:', date);
     const showImageKey = 'showImage_' + date;
     localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
   }, [showImage, date]);
