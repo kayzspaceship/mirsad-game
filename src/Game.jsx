@@ -54,7 +54,7 @@ export default function Game({ player, players, date }) {
 
   useEffect(() => {
     const key = 'gameState_' + date;
-    localStorage.setItem(key, JSON.stringify(state));
+  }, [state, date]);
   }, [state, date]);
 
   const makeGuess = (selectedPlayer) => {
