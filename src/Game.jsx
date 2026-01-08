@@ -26,7 +26,6 @@ export default function Game({ player, players, date }) {
   const [streak, setStreak] = useState(0);
   const [recentScores, setRecentScores] = useState([]);
 
-  // Load on mount and when date changes
   useEffect(() => {
     const gameStateKey = 'gameState_' + date;
     const showImageKey = 'showImage_' + date;
@@ -46,6 +45,8 @@ export default function Game({ player, players, date }) {
     }
 
     setShowImage(savedShowImage === 'true');
+    setCurrentGuess('');
+    setSearchResults([]);
 
     const scores = JSON.parse(localStorage.getItem('mirsad_scores') || '{}');
     const dates = Object.keys(scores).sort().reverse();
@@ -69,14 +70,12 @@ export default function Game({ player, players, date }) {
     setStreak(currentStreak);
   }, [date]);
 
-  // Save guesses when they change
   useEffect(() => {
     const gameStateKey = 'gameState_' + date;
     const state = { guesses, gameWon, gameLost };
     localStorage.setItem(gameStateKey, JSON.stringify(state));
   }, [guesses, gameWon, gameLost, date]);
 
-  // Save showImage when it changes
   useEffect(() => {
     const showImageKey = 'showImage_' + date;
     localStorage.setItem(showImageKey, showImage ? 'true' : 'false');
@@ -168,7 +167,7 @@ export default function Game({ player, players, date }) {
 
             {!gameWon && !gameLost && (
               <div className="mb-6">
-                <input type="text" value={currentGuess} onChange={(e) => handleSearch(e.target.value)} placeholder="Type player name..." className="w-full px-4 py-3 border-2 border-slate-900 rounded text-slate-900" />
+                <input type="text" disabled={gameWon || gameLost} value={currentGuess} onChange={(e) => handleSearch(e.target.value)} placeholder="Type player name..." className="w-full px-4 py-3 border-2 border-slate-900 rounded text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed" />
                 {searchResults.length > 0 && (
                   <div className="mt-2 bg-white border-2 border-slate-900 rounded max-h-60 overflow-y-auto">
                     {searchResults.map((p) => (
@@ -188,8 +187,8 @@ export default function Game({ player, players, date }) {
                   <thead>
                     <tr className="bg-slate-900 text-white">
                       <th className="p-2 text-left">Name</th>
-                      <th className="p-2 text-center hidden sm:table-cell">Team</th>
-                      <th className="p-2 text-center sm:hidden">T</th>
+                      <th className="p-2 text-center hidden md:table-cell">Team</th>
+                      <th className="p-2 text-center md:hidden">Tm</th>
                       <th className="p-2 text-center">Pos</th>
                       <th className="p-2 text-center">Ht</th>
                       <th className="p-2 text-center">Age</th>
@@ -201,8 +200,8 @@ export default function Game({ player, players, date }) {
                     {guesses.map((guess, idx) => (
                       <tr key={idx} className={guess.isCorrect ? 'bg-green-100' : 'bg-white border-b'}>
                         <td className="p-2 font-bold text-slate-900">{guess.name} {guess.isCorrect && '✓'}</td>
-                        <td className={`p-2 text-center font-bold text-white hidden sm:table-cell ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
-                        <td className={`p-2 text-center font-bold text-white sm:hidden text-xs ${getCellColor(guess.team === player.team)}`}>{guess.teamAbbr}</td>
+                        <td className={`p-2 text-center font-bold text-white hidden md:table-cell ${getCellColor(guess.team === player.team)}`}>{guess.team}</td>
+                        <td className={`p-2 text-center font-bold text-white md:hidden text-xs ${getCellColor(guess.team === player.team)}`}>{guess.teamAbbr}</td>
                         <td className={`p-2 text-center font-bold text-white ${getCellColor(guess.position === player.position)}`}>{guess.position}</td>
                         <td className={`p-2 text-center font-bold text-white text-xs ${getCellColor(guess.height === player.height, Math.abs(guess.height - player.height) <= 3)}`}>{getArrow(guess.height, player.height)} {guess.height}</td>
                         <td className={`p-2 text-center font-bold text-white ${getCellColor(guess.age === player.age, Math.abs(guess.age - player.age) <= 3)}`}>{getArrow(guess.age, player.age)} {guess.age}</td>
