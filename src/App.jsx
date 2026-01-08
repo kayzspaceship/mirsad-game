@@ -19,6 +19,7 @@ const db = getFirestore(app);
 
 export default function App() {
   useEffect(() => {
+    setPlayer(null);
     const script = document.createElement('script');
     script.async = true;
     script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2906011828836821";
@@ -79,10 +80,12 @@ function GamePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setPlayer(null);
     setDate(dateParam || today);
   }, [dateParam, today]);
 
   useEffect(() => {
+    setPlayer(null);
     loadData();
   }, [date]);
 
