@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { GameProvider } from './GameContext';
 import './App.css';
-import { GameProvider } from './GameContext';import Game from './Game';
+import Game from './Game';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDmLoWcAl0pS3jYar2rZxSdrjKPIZNemNQ",
@@ -27,12 +28,14 @@ export default function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/:date" element={<GamePage />} />
-      </Routes>
-    </BrowserRouter>
+    <GameProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/:date" element={<GamePage />} />
+        </Routes>
+      </BrowserRouter>
+    </GameProvider>
   );
 }
 
